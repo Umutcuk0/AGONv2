@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   className: Tank
   maxHP: 15
-  maxAP: 2
+  maxAP: 20
   moveRange: 3
   aim: 60
   maxAmmo: 6
