@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   className: Sniper
   maxHP: 10
-  maxAP: 2
+  maxAP: 1
   moveRange: 6
   aim: 100
   maxAmmo: 6
