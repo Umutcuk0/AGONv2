@@ -17,8 +17,8 @@ MonoBehaviour:
   maxAP: 2
   moveRange: 3
   aim: 70
-  maxAmmo: 6
-  damage: 3
+  maxAmmo: 10
+  damage: 5
   canOverwatch: 1
   canTakeCover: 1
   moveAPCost: 1
