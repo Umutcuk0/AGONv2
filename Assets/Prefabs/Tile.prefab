@@ -14,7 +14,8 @@ GameObject:
   - component: {fileID: 613598468899551505}
   - component: {fileID: 6185881319679543669}
   - component: {fileID: 7670998803477486191}
-  m_Layer: 0
+  - component: {fileID: 2287167034097962956}
+  m_Layer: 3
   m_Name: Tile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -128,4 +129,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   baseColor: {r: 0.4716981, g: 0.29682583, b: 0.20647915, a: 1}
-  reachableColor: {r: 0.2980392, g: 1, b: 0.36974967, a: 0.4392157}
+  reachableColor: {r: 0.32654387, g: 1, b: 0.2980392, a: 0.4392157}
+  hoverColor: {r: 1, g: 0.9001103, b: 0.015686274, a: 1}
+--- !u!114 &2287167034097962956
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7943372071473450029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 04107c6e13baa6d4096a67bb689c349a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  grid: {fileID: 0}
