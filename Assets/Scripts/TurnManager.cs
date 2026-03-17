@@ -18,6 +18,9 @@ public class TurnManager : MonoBehaviour
     [Tooltip("Enemy turu başlayınca kamera enemy'e kayabilsin diye bekleme (sn).")]
     public float enemyActionDelay = 1.0f;
 
+    [Header("UI Elements")]
+    public GameObject sniperAimButton; // Inspector'dan Sniper nişan alma butonunu buraya sürükle
+
     private List<Unit> turnOrder = new();
     private int turnIndex = -1;
 
@@ -43,6 +46,9 @@ public class TurnManager : MonoBehaviour
     public void EndCurrentUnitTurn()
     {
         if (waitingForEnemyAction) return;
+
+        // Sıra bittiğinde butonu ekrandan kaldır
+        if (sniperAimButton != null) sniperAimButton.SetActive(false);
 
         NextUnitTurn();
     }
@@ -117,6 +123,15 @@ public class TurnManager : MonoBehaviour
 
         // Highlight refresh
         FindFirstObjectByType<UnitMovementController>()?.RefreshHighlight();
+
+        // --- YENİ EKLENEN KISIM: Sniper Butonu Kontrolü ---
+        if (sniperAimButton != null)
+        {
+            // Eğer sıra oyuncudaysa ve aktif karakterin sınıfı "Sniper" ise butonu aktif et
+            bool isSniper = (u.characterClass != null && u.characterClass.name == "Sniper");
+            sniperAimButton.SetActive(IsPlayerTurn && isSniper);
+        }
+        // --------------------------------------------------
 
         if (IsEnemyTurn)
         {

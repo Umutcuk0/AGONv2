@@ -15,7 +15,7 @@ MonoBehaviour:
   className: Sniper
   maxHP: 7
   maxAP: 1
-  moveRange: 6
+  moveRange: 3
   aim: 100
   maxAmmo: 2
   damage: 8
