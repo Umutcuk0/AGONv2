@@ -30,6 +30,8 @@ public class Unit : MonoBehaviour
     [Header("Rotation")]
     [SerializeField] private float rotateSpeed = 720f; // derece/sn (Inspector’dan ayarlanır)
 
+
+
     public void RotateTowards(Vector3 worldDirection)
     {
         if (worldDirection == Vector3.zero) return;
@@ -111,6 +113,12 @@ public class Unit : MonoBehaviour
 
     public bool IsDead => hp <= 0;
 
+    [Header("Visual Feedback")]
+    [SerializeField] private Renderer[] bodyRenderers; // Karakterin 3D modelinin MeshRenderer'ları
+    [SerializeField] private Color damageFlashColor = Color.red;
+    [SerializeField] private float flashDuration = 0.1f;
+    [SerializeField] private DamagePopup damagePopupPrefab; // Az önce yaptığımız prefab
+
     public void TakeDamage(int dmg)
     {
         if (IsDead || isDying) return;
@@ -120,17 +128,22 @@ public class Unit : MonoBehaviour
 
         Debug.Log($"{name} took {dmg} dmg. HP={hp}");
 
+        // 1. HASAR YAZISINI OLUŞTUR
+        if (damagePopupPrefab != null)
+        {
+            DamagePopup popup = Instantiate(damagePopupPrefab, transform.position + (Vector3.up * 1.5f), Quaternion.identity);
+            popup.Setup(dmg);
+        }
+
+        // 2. KIRMIZI YANIP SÖNME EFEKTİNİ BAŞLAT
+        StartCoroutine(DamageFlashRoutine());
+
         if (IsDead)
         {
             isDying = true;
             Debug.Log($"{name} DIED!");
-
-            // Overwatch, input vs. kapat
             ClearOverwatch();
-
-            // Hareket animasyonu varsa durdur
             Anim_IsMoving = false;
-
             StartCoroutine(DeathRoutine());
         }
     }
@@ -166,6 +179,32 @@ public class Unit : MonoBehaviour
     public void SetAnimMoving(bool moving)
     {
         Anim_IsMoving = moving;
+    }
+
+    private IEnumerator DamageFlashRoutine()
+    {
+        if (bodyRenderers == null || bodyRenderers.Length == 0) yield break;
+
+        // Orijinal renkleri hafızaya al
+        Color[] originalColors = new Color[bodyRenderers.Length];
+        for (int i = 0; i < bodyRenderers.Length; i++)
+        {
+            if (bodyRenderers[i] != null)
+            {
+                originalColors[i] = bodyRenderers[i].material.color;
+                bodyRenderers[i].material.color = damageFlashColor;
+            }
+        }
+
+        // flashDuration kadar bekle
+        yield return new WaitForSeconds(flashDuration);
+
+        // Orijinal renkleri geri yükle
+        for (int i = 0; i < bodyRenderers.Length; i++)
+        {
+            if (bodyRenderers[i] != null)
+                bodyRenderers[i].material.color = originalColors[i];
+        }
     }
 
     IEnumerator DeathRoutine()
