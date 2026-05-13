@@ -15,9 +15,7 @@ public class ShootingController : MonoBehaviour
 
     [Header("LOS (Cover/Obstacle Between)")]
     [SerializeField] private LayerMask coverMask;
-
     [SerializeField] private LayerMask obstacleMask;
-
     [SerializeField] private float rayHeight = 1.2f;
 
     [Header("Debug")]
@@ -26,13 +24,9 @@ public class ShootingController : MonoBehaviour
 
     [Header("Projectile Visual (NO DAMAGE)")]
     [SerializeField] private GameObject projectilePrefab;
- 
     [SerializeField] private Transform muzzleOverride;
-
     [SerializeField] private float projectileFlightTime = 0.12f;
-
     [SerializeField] private float missOffsetRadius = 0.6f;
-
     [SerializeField] private bool destroyProjectileOnArrival = true;
 
     [Header("Rotate Before Fire")]
@@ -137,14 +131,11 @@ public class ShootingController : MonoBehaviour
         if (Instance != null)
             Instance.SpawnProjectileVisual(attacker, endPos);
 
-        Debug.Log($"[OVERWATCH RESULT] Hit%={hitChance} Roll={roll} => {(hit ? "HIT" : "MISS")} | Ammo={attacker.ammo}");
-
         if (hit)
             target.TakeDamage(attacker.characterClass.damage);
 
         return true;
     }
-
 
     static bool FireCore(Unit attacker, Unit target, GridManager grid, int fireAPCost, int maxRange, out bool isHit, out Vector3 shotEndWorld)
     {
@@ -178,9 +169,6 @@ public class ShootingController : MonoBehaviour
         int roll = Random.Range(1, 101);
         isHit = roll <= hitChance;
 
-        if (Instance != null && Instance.debugLOS)
-            Debug.Log($"[FIRE] {attacker.name} -> {target.name} | Penalty={coverPenalty} | {debugInfo}");
-
         if (isHit)
         {
             target.TakeDamage(attacker.characterClass.damage);
@@ -192,8 +180,6 @@ public class ShootingController : MonoBehaviour
             Vector2 r = Random.insideUnitCircle * radius;
             shotEndWorld = target.transform.position + new Vector3(r.x, 0f, r.y);
         }
-
-        Debug.Log($"[FIRE RESULT] Hit%={hitChance} Roll={roll} => {(isHit ? "HIT" : "MISS")} | Ammo={attacker.ammo}");
 
         return true;
     }
@@ -220,61 +206,23 @@ public class ShootingController : MonoBehaviour
         if (Physics.Raycast(start, dir, dist, obstacleMask, QueryTriggerInteraction.Ignore))
         {
             blocked = true;
-
-            if (debugLOS)
-            {
-                Debug.DrawLine(start, end, Color.red, debugLineDuration);
-                debugInfo = "BLOCKED by Obstacle";
-                Debug.Log($"[LOS] BLOCKED: {attacker.name} -> {target.name}");
-            }
-            else debugInfo = "BLOCKED";
-
+            if (debugLOS) Debug.DrawLine(start, end, Color.red, debugLineDuration);
+            debugInfo = "BLOCKED";
             return;
         }
 
         RaycastHit[] coverHits = Physics.RaycastAll(start, dir, dist, coverMask, QueryTriggerInteraction.Ignore);
-
         int best = 0;
-        string bestName = "None";
-
         foreach (var h in coverHits)
         {
-            if (h.collider == null) continue;
-
             CoverMarker marker = h.collider.GetComponentInParent<CoverMarker>();
             if (marker == null) continue;
-
-            if (marker.coverType == CoverType.Full)
-            {
-                best = Mathf.Max(best, 50);
-                bestName = h.collider.name;
-            }
-            else if (marker.coverType == CoverType.Half)
-            {
-                best = Mathf.Max(best, 25);
-                if (best < 50) bestName = h.collider.name;
-            }
+            if (marker.coverType == CoverType.Full) best = Mathf.Max(best, 50);
+            else if (marker.coverType == CoverType.Half) best = Mathf.Max(best, 25);
         }
 
         coverPenalty = best;
-
-        if (debugLOS)
-        {
-            Color c = Color.green;
-            if (coverPenalty == 25) c = Color.yellow;
-            else if (coverPenalty == 50) c = new Color(1f, 0.5f, 0f); // turuncu
-
-            Debug.DrawLine(start, end, c, debugLineDuration);
-
-            if (coverPenalty > 0)
-                debugInfo = $"COVER penalty={coverPenalty} hit={bestName}";
-            else
-                debugInfo = "CLEAR (no cover/obstacle between)";
-        }
-        else
-        {
-            debugInfo = coverPenalty > 0 ? $"COVER {coverPenalty}" : "CLEAR";
-        }
+        debugInfo = coverPenalty > 0 ? $"COVER {coverPenalty}" : "CLEAR";
     }
 
     IEnumerator RotateAndFire(Unit attacker, Unit target)
@@ -295,10 +243,12 @@ public class ShootingController : MonoBehaviour
         Fire(attacker, target, grid, fireAPCost, maxRange);
     }
 
-
     void SpawnProjectileVisual(Unit attacker, Vector3 endPos)
     {
         if (projectilePrefab == null) return;
+
+        // --- SES TETİKLEME: Karakterin kendi fonksiyonunu çağırıyoruz ---
+        attacker.PlayFireSound();
 
         Vector3 startPos;
         if (muzzleOverride != null) startPos = muzzleOverride.position;
@@ -331,9 +281,7 @@ public class ShootingController : MonoBehaviour
         if (proj != null)
         {
             proj.transform.position = end;
-
-            if (destroyProjectileOnArrival)
-                Destroy(proj);
+            if (destroyProjectileOnArrival) Destroy(proj);
         }
     }
 }

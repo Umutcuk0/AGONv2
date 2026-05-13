@@ -3,6 +3,13 @@ using UnityEngine;
 
 public class Unit : MonoBehaviour
 {
+    [Header("Audio")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip damageSound;
+    [SerializeField] private AudioClip footstepSound;
+    [SerializeField] private AudioClip fireSound;
+    [SerializeField] private AudioClip reloadSound; // YENİ: Şarjör yenileme sesi
+
     [Header("Class Data")]
     public CharacterClassSO characterClass;
 
@@ -28,28 +35,16 @@ public class Unit : MonoBehaviour
     private bool isDying;
 
     [Header("Rotation")]
-    [SerializeField] private float rotateSpeed = 720f; // derece/sn (Inspector’dan ayarlanır)
-
-
+    [SerializeField] private float rotateSpeed = 720f;
 
     public void RotateTowards(Vector3 worldDirection)
     {
         if (worldDirection == Vector3.zero) return;
-
-        // Y ekseninde döndür
         Quaternion targetRot = Quaternion.LookRotation(worldDirection, Vector3.up);
-        transform.rotation = Quaternion.RotateTowards(
-            transform.rotation,
-            targetRot,
-            rotateSpeed * Time.deltaTime
-        );
+        transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRot, rotateSpeed * Time.deltaTime);
     }
 
-
-    private void Awake()
-    {
-        InitFromClass();
-    }
+    private void Awake() => InitFromClass();
 
     private void Start()
     {
@@ -59,12 +54,7 @@ public class Unit : MonoBehaviour
 
     public void InitFromClass()
     {
-        if (characterClass == null)
-        {
-            Debug.LogError($"{name}: CharacterClassSO atanmadı!");
-            return;
-        }
-
+        if (characterClass == null) return;
         hp = characterClass.maxHP;
         ap = characterClass.maxAP;
         ammo = characterClass.maxAmmo;
@@ -82,42 +72,33 @@ public class Unit : MonoBehaviour
     public void SnapToGridFromWorld()
     {
         if (grid == null) return;
-
         Vector2Int gp = grid.WorldToGrid(transform.position);
         PlaceOnTile(gp);
     }
 
     public Vector3 GetWorldPos(Vector2Int gp) => grid != null ? grid.GridToWorld(gp) : transform.position;
 
-
     public bool PlaceOnTile(Vector2Int targetPos)
     {
         if (grid == null) return false;
-
         Tile target = grid.GetTile(targetPos);
-        if (target == null) return false;
-        if (!target.walkable) return false;
-        if (target.IsOccupied) return false;
+        if (target == null || !target.walkable || target.IsOccupied) return false;
 
         Tile old = grid.GetTile(gridPos);
-        if (old != null && old.occupant == this)
-            old.occupant = null;
+        if (old != null && old.occupant == this) old.occupant = null;
 
         gridPos = targetPos;
         target.occupant = this;
-
-        //transform.position = grid.GridToWorld(gridPos);
-
         return true;
     }
 
     public bool IsDead => hp <= 0;
 
     [Header("Visual Feedback")]
-    [SerializeField] private Renderer[] bodyRenderers; // Karakterin 3D modelinin MeshRenderer'ları
+    [SerializeField] private Renderer[] bodyRenderers;
     [SerializeField] private Color damageFlashColor = Color.red;
     [SerializeField] private float flashDuration = 0.1f;
-    [SerializeField] private DamagePopup damagePopupPrefab; // Az önce yaptığımız prefab
+    [SerializeField] private DamagePopup damagePopupPrefab;
 
     public void TakeDamage(int dmg)
     {
@@ -126,66 +107,85 @@ public class Unit : MonoBehaviour
         hp -= dmg;
         if (hp < 0) hp = 0;
 
-        Debug.Log($"{name} took {dmg} dmg. HP={hp}");
-
-        // 1. HASAR YAZISINI OLUŞTUR
         if (damagePopupPrefab != null)
         {
             DamagePopup popup = Instantiate(damagePopupPrefab, transform.position + (Vector3.up * 1.5f), Quaternion.identity);
             popup.Setup(dmg);
         }
 
-        // 2. KIRMIZI YANIP SÖNME EFEKTİNİ BAŞLAT
         StartCoroutine(DamageFlashRoutine());
+
+        // HASAR SESİ
+        if (audioSource != null && damageSound != null)
+        {
+            audioSource.PlayOneShot(damageSound);
+        }
 
         if (IsDead)
         {
             isDying = true;
-            Debug.Log($"{name} DIED!");
             ClearOverwatch();
-            Anim_IsMoving = false;
+            SetAnimMoving(false);
             StartCoroutine(DeathRoutine());
         }
-    }
-
-    public bool Reload()
-    {
-        int cost = 1;
-        if (!SpendAP(cost)) return false;
-
-        ammo = characterClass.maxAmmo;
-        Debug.Log($"{name} reloaded. Ammo={ammo}");
-        return true;
-    }
-
-    public bool EnterOverwatch(int apCost = 1)
-    {
-        isOverwatch = true;
-        if (!SpendAP(apCost)) return false;
-
-        isOverwatch = true;
-        overwatchUsedThisRound = false;
-        Debug.Log($"{name} is now on OVERWATCH");
-        return true;
-    }
-
-    public void ClearOverwatch()
-    {
-        isOverwatch= false;
-        isOverwatch = false;
-        overwatchUsedThisRound = false;
     }
 
     public void SetAnimMoving(bool moving)
     {
         Anim_IsMoving = moving;
+
+        if (audioSource == null || footstepSound == null) return;
+
+        if (moving)
+        {
+            if (!audioSource.isPlaying || audioSource.clip != footstepSound)
+            {
+                audioSource.clip = footstepSound;
+                audioSource.loop = true;
+                audioSource.Play();
+            }
+        }
+        else
+        {
+            if (audioSource.clip == footstepSound)
+            {
+                audioSource.Stop();
+            }
+        }
+    }
+
+    public bool Reload()
+    {
+        if (!SpendAP(1)) return false;
+
+        ammo = characterClass.maxAmmo;
+
+        // ŞARJÖR YENİLEME SESİ
+        if (audioSource != null && reloadSound != null)
+        {
+            audioSource.PlayOneShot(reloadSound);
+        }
+
+        return true;
+    }
+
+    public bool EnterOverwatch(int apCost = 1)
+    {
+        if (!SpendAP(apCost)) return false;
+        isOverwatch = true;
+        overwatchUsedThisRound = false;
+        return true;
+    }
+
+    public void ClearOverwatch()
+    {
+        isOverwatch = false;
+        overwatchUsedThisRound = false;
     }
 
     private IEnumerator DamageFlashRoutine()
     {
-        if (bodyRenderers == null || bodyRenderers.Length == 0) yield break;
-
-        // Orijinal renkleri hafızaya al
+        if (bodyRenderers == null) yield break;
         Color[] originalColors = new Color[bodyRenderers.Length];
         for (int i = 0; i < bodyRenderers.Length; i++)
         {
@@ -195,37 +195,31 @@ public class Unit : MonoBehaviour
                 bodyRenderers[i].material.color = damageFlashColor;
             }
         }
-
-        // flashDuration kadar bekle
         yield return new WaitForSeconds(flashDuration);
-
-        // Orijinal renkleri geri yükle
         for (int i = 0; i < bodyRenderers.Length; i++)
         {
-            if (bodyRenderers[i] != null)
-                bodyRenderers[i].material.color = originalColors[i];
+            if (bodyRenderers[i] != null) bodyRenderers[i].material.color = originalColors[i];
         }
     }
 
     IEnumerator DeathRoutine()
     {
-        // Animator varsa animasyon süresini bul
         float deathAnimLength = 0f;
-
         Animator anim = GetComponentInChildren<Animator>();
         if (anim != null)
         {
-            // Animator state'e geçmesi için 1 frame bekle
             yield return null;
-
-            AnimatorStateInfo state = anim.GetCurrentAnimatorStateInfo(0);
-            deathAnimLength = state.length;
+            deathAnimLength = anim.GetCurrentAnimatorStateInfo(0).length;
         }
-
-        // Animasyon + ekstra delay
         yield return new WaitForSeconds(deathAnimLength + destroyDelayAfterDeath);
-
         Destroy(gameObject);
     }
 
+    public void PlayFireSound()
+    {
+        if (audioSource != null && fireSound != null)
+        {
+            audioSource.PlayOneShot(fireSound);
+        }
+    }
 }
