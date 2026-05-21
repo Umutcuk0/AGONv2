@@ -126,9 +126,20 @@ public class Unit : MonoBehaviour
             isDying = true;
             ClearOverwatch();
             SetAnimMoving(false);
-            StartCoroutine(DeathRoutine());
+
+            if (BattleResultManager.Instance != null)
+            {
+                BattleResultManager.Instance.OnUnitDied(this);
+            }
+
+            // Coroutine çağırmak yerine objeyi direkt yok ediyoruz:
+            Destroy(gameObject);
         }
+
+
     }
+
+
 
     public void SetAnimMoving(bool moving)
     {

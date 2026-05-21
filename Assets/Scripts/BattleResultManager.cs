@@ -1,85 +1,113 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using System.Collections;
+using UnityEngine.SceneManagement; // Sahneleri yönetmek için bu kütüphane ÞART!
 
 public class BattleResultManager : MonoBehaviour
 {
-    [Header("Victory Settings")]
-    [Tooltip("Düþmanlar bittiðinde geçilecek sahnenin Index numarasý.")]
-    public int victorySceneIndex;
+    public static BattleResultManager Instance;
 
-    [Tooltip("Sahneler arasý geçiþte görünecek Fade/Animasyon paneli.")]
-    public GameObject transitionPanel;
+    [Header("Victory UI")]
+    [Tooltip("Düþmanlar bittiðinde otomatik açýlacak Zafer Paneli.")]
+    public GameObject victoryPanel;
 
-    [Tooltip("Sahne deðiþmeden önce beklenecek süre (saniye).")]
-    public float transitionDelay = 1.0f;
+    [Header("Defeat UI")]
+    [Tooltip("Tüm oyuncular öldüðünde otomatik açýlacak Yenilgi Paneli.")]
+    public GameObject defeatPanel;
 
-    [Header("Defeat Settings")]
-    [Tooltip("Tüm oyuncular öldüðünde açýlacak Canvas/Panel.")]
-    public GameObject defeatCanvas;
+    [Header("Transition Settings")]
+    [Tooltip("Arka planda belirecek siyah fade ekraný.")]
+    public GameObject fadeTransitionPanel;
+
+    [Tooltip("Paneller otomatik açýlmadan önce beklenecek süre.")]
+    public float panelDisplayDelay = 1.0f;
 
     private bool isGameOver = false;
 
-    private void Start()
+    private void Awake()
     {
-        // Oyun baþýnda panellerin kapalý olduðundan kod ile emin oluyoruz
-        if (transitionPanel != null)
-            transitionPanel.SetActive(false);
-
-        if (defeatCanvas != null)
-            defeatCanvas.SetActive(false);
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
     }
 
-    private void Update()
+    private void Start()
     {
-        // Eðer oyun bittiyse (Victory veya Defeat) Update'i durdur
-        if (isGameOver) return;
+        if (victoryPanel != null) victoryPanel.SetActive(false);
+        if (defeatPanel != null) defeatPanel.SetActive(false);
+        if (fadeTransitionPanel != null) fadeTransitionPanel.SetActive(false);
+    }
 
-        // TurnManager hazýr deðilse bekle
-        if (TurnManager.Instance == null) return;
+    // Üniteler öldüðü an bu fonksiyonu çaðýracaðýz
+    public void OnUnitDied(Unit deadUnit)
+    {
+        if (isGameOver || TurnManager.Instance == null) return;
 
-        // VICTORY: Düþmanlar bitti
+        // TurnManager'ýn listelerinden anýnda temizliyoruz ki yok olmasýný (Destroy) beklemeyelim
+        if (TurnManager.Instance.playerUnits.Contains(deadUnit))
+            TurnManager.Instance.playerUnits.Remove(deadUnit);
+
+        if (TurnManager.Instance.enemyUnits.Contains(deadUnit))
+            TurnManager.Instance.enemyUnits.Remove(deadUnit);
+
+        // Kalan canlý sayýlarýna göre durumu kontrol et
+        CheckGameCondition();
+    }
+
+    private void CheckGameCondition()
+    {
+        // VICTORY KONTROLÜ
         if (TurnManager.Instance.enemyUnits.Count == 0 && TurnManager.Instance.playerUnits.Count > 0)
         {
-            isGameOver = true; // Döngüyü anýnda kýr
-            StartCoroutine(HandleVictoryWithTransition());
+            isGameOver = true;
+            StartCoroutine(TriggerAutomaticVictory());
         }
-        // DEFEAT: Oyuncular bitti
+        // DEFEAT KONTROLÜ
         else if (TurnManager.Instance.playerUnits.Count == 0)
         {
             isGameOver = true;
-            HandleDefeat();
+            StartCoroutine(TriggerAutomaticDefeat());
         }
     }
 
-    private IEnumerator HandleVictoryWithTransition()
+    private IEnumerator TriggerAutomaticVictory()
     {
-        Debug.Log("Victory! Panel açýlýyor...");
+        Debug.Log("Zafer Þartlarý Saðlandý! Panel hazýrlanýyor...");
+        if (fadeTransitionPanel != null) fadeTransitionPanel.SetActive(true);
 
-        if (transitionPanel != null)
-        {
-            // Paneli aktif et (Animasyonun 'Play on Awake' seçeneði iþaretli olmalý)
-            transitionPanel.SetActive(true);
-        }
+        yield return new WaitForSeconds(panelDisplayDelay);
 
-        // Animasyon süresi (1 sn) boyunca bekle
-        yield return new WaitForSeconds(transitionDelay);
-
-        Debug.Log("Süre doldu, sahne yükleniyor...");
-        SceneManager.LoadScene(victorySceneIndex);
+        if (victoryPanel != null) victoryPanel.SetActive(true);
     }
 
-    private void HandleDefeat()
+    private IEnumerator TriggerAutomaticDefeat()
     {
-        Debug.Log("Defeat! Kaybetme ekraný açýlýyor...");
-        if (defeatCanvas != null)
-        {
-            defeatCanvas.SetActive(true);
-        }
+        Debug.Log("Yenilgi Þartlarý Saðlandý! Panel hazýrlanýyor...");
+        if (fadeTransitionPanel != null) fadeTransitionPanel.SetActive(true);
+
+        yield return new WaitForSeconds(panelDisplayDelay);
+
+        if (defeatPanel != null) defeatPanel.SetActive(true);
     }
 
+    // =================================================================
+    // --- BUTONLAR TARAFINDAN ÇAÐRILACAK YENÝ EKLENEN FONKSÝYONLAR ---
+    // =================================================================
+
+    /// <summary>
+    /// Yenilgi ekranýndaki "Tekrar Dene / Restart" butonu için geçerli sahneyi yeniden yükler.
+    /// </summary>
     public void RestartLevel()
     {
+        Debug.Log("Level yeniden baþlatýlýyor...");
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    /// <summary>
+    /// Zafer ekranýndaki "Sonraki Bölüm" butonu için belirtilen sahne indexini yükler.
+    /// </summary>
+    /// <param name="nextSceneIndex">Gidilmek istenen sahnenin Build Settings'teki numarasý.</param>
+    public void LoadNextScene(int nextSceneIndex)
+    {
+        Debug.Log("Sonraki sahne yükleniyor: " + nextSceneIndex);
+        SceneManager.LoadScene(nextSceneIndex);
     }
 }
