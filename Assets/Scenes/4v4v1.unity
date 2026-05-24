@@ -7459,6 +7459,8 @@ MonoBehaviour:
   isMovingParam: IsMoving
   isOverwatchParam: IsOverwatch
   isDeadParam: IsDead
+  shootTriggerParam: IsShooting
+  hitTriggerParam: GetHit
 --- !u!95 &892858946
 Animator:
   serializedVersion: 5
@@ -8734,6 +8736,8 @@ MonoBehaviour:
   isMovingParam: IsMoving
   isOverwatchParam: IsOverwatch
   isDeadParam: IsDead
+  shootTriggerParam: IsShooting
+  hitTriggerParam: GetHit
 --- !u!114 &1119855665
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9884,6 +9888,8 @@ MonoBehaviour:
   isMovingParam: IsMoving
   isOverwatchParam: IsOverwatch
   isDeadParam: IsDead
+  shootTriggerParam: IsShooting
+  hitTriggerParam: GetHit
 --- !u!114 &1362744320
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14078,6 +14084,7 @@ MonoBehaviour:
   missOffsetRadius: 0.6
   destroyProjectileOnArrival: 1
   rotateDuration: 0.12
+  rotationOffset: 45
 --- !u!4 &1791449015
 Transform:
   m_ObjectHideFlags: 0

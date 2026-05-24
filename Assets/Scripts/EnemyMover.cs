@@ -65,7 +65,7 @@ public class EnemyMover : MonoBehaviour
                     dir.y = 0f;
                     yield return RotateFor(enemy, dir, aimRotateDuration);
 
-                    ShootingController.Fire(enemy, target, grid, enemyFireCost, enemyFireRange);
+                    ShootingController.Instance.Fire(enemy, target, grid, enemyFireCost, enemyFireRange);
                 }
 
                 yield return new WaitForSeconds(0.1f);
@@ -397,7 +397,7 @@ public class EnemyMover : MonoBehaviour
             int dist = Manhattan(p.gridPos, movingEnemy.gridPos);
             if (dist > overwatchRange) continue;
 
-            bool fired = ShootingController.OverwatchFire(p, movingEnemy, grid, overwatchRange);
+            bool fired = ShootingController.Instance.OverwatchFire(p, movingEnemy, grid, overwatchRange);
             if (fired)
             {
                 p.overwatchUsedThisRound = true;

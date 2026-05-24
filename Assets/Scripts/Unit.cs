@@ -8,7 +8,7 @@ public class Unit : MonoBehaviour
     [SerializeField] private AudioClip damageSound;
     [SerializeField] private AudioClip footstepSound;
     [SerializeField] private AudioClip fireSound;
-    [SerializeField] private AudioClip reloadSound; // YENİ: Şarjör yenileme sesi
+    [SerializeField] private AudioClip reloadSound;
 
     [Header("Class Data")]
     public CharacterClassSO characterClass;
@@ -31,7 +31,7 @@ public class Unit : MonoBehaviour
     public bool Anim_IsMoving;
 
     [Header("Death")]
-    [SerializeField] private float destroyDelayAfterDeath = 1f;
+    [SerializeField] private float destroyDelayAfterDeath = 2.5f;
     private bool isDying;
 
     [Header("Rotation")]
@@ -115,10 +115,18 @@ public class Unit : MonoBehaviour
 
         StartCoroutine(DamageFlashRoutine());
 
-        // HASAR SESİ
         if (audioSource != null && damageSound != null)
         {
             audioSource.PlayOneShot(damageSound);
+        }
+
+        if (!IsDead)
+        {
+            UnitAnimator unitAnimator = GetComponent<UnitAnimator>();
+            if (unitAnimator != null)
+            {
+                unitAnimator.TriggerHitAnimation();
+            }
         }
 
         if (IsDead)
@@ -132,14 +140,9 @@ public class Unit : MonoBehaviour
                 BattleResultManager.Instance.OnUnitDied(this);
             }
 
-            // Coroutine çağırmak yerine objeyi direkt yok ediyoruz:
-            Destroy(gameObject);
+            StartCoroutine(DeathRoutine());
         }
-
-
     }
-
-
 
     public void SetAnimMoving(bool moving)
     {
@@ -171,7 +174,6 @@ public class Unit : MonoBehaviour
 
         ammo = characterClass.maxAmmo;
 
-        // ŞARJÖR YENİLEME SESİ
         if (audioSource != null && reloadSound != null)
         {
             audioSource.PlayOneShot(reloadSound);
@@ -215,14 +217,11 @@ public class Unit : MonoBehaviour
 
     IEnumerator DeathRoutine()
     {
-        float deathAnimLength = 0f;
-        Animator anim = GetComponentInChildren<Animator>();
-        if (anim != null)
-        {
-            yield return null;
-            deathAnimLength = anim.GetCurrentAnimatorStateInfo(0).length;
-        }
-        yield return new WaitForSeconds(deathAnimLength + destroyDelayAfterDeath);
+        // Karmaşık animasyon süresi alma kodunu sildik. 
+        // destroyDelayAfterDeath değerini Inspector'dan (Örn: 2f veya 2.5f) yaparak 
+        // karakterin yere düşme süresini tam olarak bekletebilirsin.
+        yield return new WaitForSeconds(destroyDelayAfterDeath);
+
         Destroy(gameObject);
     }
 

@@ -939,7 +939,7 @@ ParticleSystem:
     donutRadius: 0.2
     m_Position: {x: 0, y: 0, z: 0}
     m_Rotation: {x: 0, y: 0, z: 0}
-    m_Scale: {x: 30, y: 1, z: 30}
+    m_Scale: {x: 40, y: 1, z: 35}
     placementMode: 0
     m_MeshMaterialIndex: 0
     m_MeshNormalOffset: 0
@@ -1137,7 +1137,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 300
+      scalar: 500
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -4000,7 +4000,7 @@ ParticleSystem:
     m_EnergyLossOnCollision:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.2
+      scalar: 1
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -4055,8 +4055,8 @@ ParticleSystem:
     radiusScale: 1
     collidesWith:
       serializedVersion: 2
-      m_Bits: 4294967295
-    maxCollisionShapes: 256
+      m_Bits: 2147483647
+    maxCollisionShapes: 1024
     quality: 0
     voxelSize: 0.5
     collisionMessages: 0
@@ -5018,7 +5018,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6273151}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 12.11, y: 7.1, z: 10.28}
+  m_LocalPosition: {x: 12.11, y: 20.2, z: 6.8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -21452,6 +21452,8 @@ MonoBehaviour:
   isMovingParam: IsMoving
   isOverwatchParam: IsOverwatch
   isDeadParam: IsDead
+  shootTriggerParam: IsShooting
+  hitTriggerParam: GetHit
 --- !u!114 &1175628796
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -26295,6 +26297,8 @@ MonoBehaviour:
   isMovingParam: IsMoving
   isOverwatchParam: IsOverwatch
   isDeadParam: IsDead
+  shootTriggerParam: IsShooting
+  hitTriggerParam: GetHit
 --- !u!114 &1583387261
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27921,6 +27925,8 @@ MonoBehaviour:
   isMovingParam: IsMoving
   isOverwatchParam: IsOverwatch
   isDeadParam: IsDead
+  shootTriggerParam: IsShooting
+  hitTriggerParam: GetHit
 --- !u!114 &1660257393
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -30268,6 +30274,7 @@ MonoBehaviour:
   missOffsetRadius: 0.6
   destroyProjectileOnArrival: 1
   rotateDuration: 0.12
+  rotationOffset: 45
 --- !u!4 &1791449015
 Transform:
   m_ObjectHideFlags: 0

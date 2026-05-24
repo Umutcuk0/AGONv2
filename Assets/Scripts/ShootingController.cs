@@ -32,6 +32,9 @@ public class ShootingController : MonoBehaviour
     [Header("Rotate Before Fire")]
     [SerializeField] private float rotateDuration = 0.12f;
 
+    [Tooltip("Karakterin atış anındaki bakış açısını manuel düzeltmek için (Derece cinsinden)")]
+    [SerializeField] private float rotationOffset = 0f;
+
     private void Awake()
     {
         Instance = this;
@@ -61,7 +64,7 @@ public class ShootingController : MonoBehaviour
                 if (targetUnit == attacker) return;
                 if (targetUnit.IsDead) return;
 
-                StartCoroutine(RotateAndFire(attacker, targetUnit));
+                StartCoroutine(RotateAndFireRoutine(attacker, targetUnit, fireAPCost, maxRange));
             }
         }
 
@@ -71,43 +74,89 @@ public class ShootingController : MonoBehaviour
         }
     }
 
-    public static bool Fire(Unit attacker, Unit target, GridManager grid, int fireAPCost = 1, int maxRange = 8)
+    public bool Fire(Unit attacker, Unit target, GridManager grid, int fireAPCost = 1, int maxRange = 8)
     {
-        bool hit;
-        Vector3 endPos;
+        if (attacker == null || target == null) return false;
+        if (attacker.IsDead || target.IsDead) return false;
 
-        bool success = FireCore(attacker, target, grid, fireAPCost, maxRange, out hit, out endPos);
-        if (!success) return false;
-
-        if (Instance != null)
-            Instance.SpawnProjectileVisual(attacker, endPos);
-
+        StartCoroutine(RotateAndFireRoutine(attacker, target, fireAPCost, maxRange));
         return true;
     }
 
-    public static bool OverwatchFire(Unit attacker, Unit target, GridManager grid, int maxRange = 8)
+    public bool OverwatchFire(Unit attacker, Unit target, GridManager grid, int maxRange = 8)
     {
         if (attacker == null || target == null) return false;
         if (attacker.IsDead || target.IsDead) return false;
         if (attacker.ammo <= 0) return false;
 
+        StartCoroutine(RotateAndOverwatchFireRoutine(attacker, target, maxRange));
+        return true;
+    }
+
+    IEnumerator RotateAndFireRoutine(Unit attacker, Unit target, int fireAPCost = 1, int maxRange = 8)
+    {
+        Vector3 dir = (target.transform.position - attacker.transform.position);
+        dir.y = 0f;
+
+        if (dir == Vector3.zero) dir = attacker.transform.forward;
+
+        Quaternion targetRotation = Quaternion.LookRotation(dir.normalized, Vector3.up);
+        targetRotation *= Quaternion.Euler(0, rotationOffset, 0);
+
+        float t = 0f;
+        Quaternion startRotation = attacker.transform.rotation;
+
+        while (t < rotateDuration)
+        {
+            t += Time.deltaTime;
+            float normalizedTime = t / rotateDuration;
+            attacker.transform.rotation = Quaternion.Slerp(startRotation, targetRotation, normalizedTime);
+            yield return null;
+        }
+
+        attacker.transform.rotation = targetRotation;
+
+        bool hit;
+        Vector3 endPos;
+        bool success = FireCore(attacker, target, grid, fireAPCost, maxRange, out hit, out endPos);
+        if (success)
+        {
+            SpawnProjectileVisual(attacker, endPos);
+        }
+    }
+
+    IEnumerator RotateAndOverwatchFireRoutine(Unit attacker, Unit target, int maxRange = 8)
+    {
+        Vector3 dir = (target.transform.position - attacker.transform.position);
+        dir.y = 0f;
+
+        if (dir == Vector3.zero) dir = attacker.transform.forward;
+
+        Quaternion targetRotation = Quaternion.LookRotation(dir.normalized, Vector3.up);
+        targetRotation *= Quaternion.Euler(0, rotationOffset, 0);
+
+        float t = 0f;
+        Quaternion startRotation = attacker.transform.rotation;
+
+        while (t < rotateDuration)
+        {
+            t += Time.deltaTime;
+            float normalizedTime = t / rotateDuration;
+            attacker.transform.rotation = Quaternion.Slerp(startRotation, targetRotation, normalizedTime);
+            yield return null;
+        }
+
+        attacker.transform.rotation = targetRotation;
+
         int coverPenalty;
         bool blocked;
         string debugInfo;
-        if (Instance != null)
-        {
-            Instance.EvaluateLineOfFire(attacker, target, out coverPenalty, out blocked, out debugInfo);
-            if (blocked) return false;
-        }
-        else
-        {
-            coverPenalty = 0;
-            blocked = false;
-            debugInfo = "Instance NULL (no LOS debug)";
-        }
+        EvaluateLineOfFire(attacker, target, out coverPenalty, out blocked, out debugInfo);
+
+        if (blocked) yield break;
 
         int dist = Mathf.Abs(attacker.gridPos.x - target.gridPos.x) + Mathf.Abs(attacker.gridPos.y - target.gridPos.y);
-        if (dist > maxRange) return false;
+        if (dist > maxRange) yield break;
 
         int hitChance = attacker.characterClass.aim - coverPenalty;
         hitChance = Mathf.Clamp(hitChance, 5, 95);
@@ -117,27 +166,24 @@ public class ShootingController : MonoBehaviour
         int roll = Random.Range(1, 101);
         bool hit = roll <= hitChance;
 
-        if (Instance != null && Instance.debugLOS)
+        if (debugLOS)
             Debug.Log($"[OVERWATCH] {attacker.name} -> {target.name} | Penalty={coverPenalty} | {debugInfo}");
 
         Vector3 endPos = target.transform.position;
         if (!hit)
         {
-            float radius = (Instance != null) ? Instance.missOffsetRadius : 0.6f;
+            float radius = missOffsetRadius;
             Vector2 r = Random.insideUnitCircle * radius;
             endPos = target.transform.position + new Vector3(r.x, 0f, r.y);
         }
 
-        if (Instance != null)
-            Instance.SpawnProjectileVisual(attacker, endPos);
+        SpawnProjectileVisual(attacker, endPos);
 
         if (hit)
             target.TakeDamage(attacker.characterClass.damage);
-
-        return true;
     }
 
-    static bool FireCore(Unit attacker, Unit target, GridManager grid, int fireAPCost, int maxRange, out bool isHit, out Vector3 shotEndWorld)
+    bool FireCore(Unit attacker, Unit target, GridManager grid, int fireAPCost, int maxRange, out bool isHit, out Vector3 shotEndWorld)
     {
         isHit = false;
         shotEndWorld = target != null ? target.transform.position : Vector3.zero;
@@ -151,11 +197,8 @@ public class ShootingController : MonoBehaviour
         int coverPenalty = 0;
         bool blocked = false;
         string debugInfo = "";
-        if (Instance != null)
-        {
-            Instance.EvaluateLineOfFire(attacker, target, out coverPenalty, out blocked, out debugInfo);
-            if (blocked) return false;
-        }
+        EvaluateLineOfFire(attacker, target, out coverPenalty, out blocked, out debugInfo);
+        if (blocked) return false;
 
         int dist = Mathf.Abs(attacker.gridPos.x - target.gridPos.x) + Mathf.Abs(attacker.gridPos.y - target.gridPos.y);
         if (dist > maxRange) return false;
@@ -176,7 +219,7 @@ public class ShootingController : MonoBehaviour
         }
         else
         {
-            float radius = (Instance != null) ? Instance.missOffsetRadius : 0.6f;
+            float radius = missOffsetRadius;
             Vector2 r = Random.insideUnitCircle * radius;
             shotEndWorld = target.transform.position + new Vector3(r.x, 0f, r.y);
         }
@@ -225,30 +268,17 @@ public class ShootingController : MonoBehaviour
         debugInfo = coverPenalty > 0 ? $"COVER {coverPenalty}" : "CLEAR";
     }
 
-    IEnumerator RotateAndFire(Unit attacker, Unit target)
-    {
-        if (attacker == null || target == null) yield break;
-
-        Vector3 dir = (target.transform.position - attacker.transform.position);
-        dir.y = 0f;
-
-        float t = 0f;
-        while (t < rotateDuration)
-        {
-            t += Time.deltaTime;
-            attacker.RotateTowards(dir);
-            yield return null;
-        }
-
-        Fire(attacker, target, grid, fireAPCost, maxRange);
-    }
-
     void SpawnProjectileVisual(Unit attacker, Vector3 endPos)
     {
         if (projectilePrefab == null) return;
 
-        // --- SES TETİKLEME: Karakterin kendi fonksiyonunu çağırıyoruz ---
         attacker.PlayFireSound();
+
+        UnitAnimator unitAnimator = attacker.GetComponent<UnitAnimator>();
+        if (unitAnimator != null)
+        {
+            unitAnimator.PlayShootAnimation();
+        }
 
         Vector3 startPos;
         if (muzzleOverride != null) startPos = muzzleOverride.position;
