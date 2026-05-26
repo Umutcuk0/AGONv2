@@ -1,12 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class OutlineSelectionController : MonoBehaviour
 {
     [Header("Raycast Ayarlarý")]
-    [SerializeField] private LayerMask enemyLayer; // Sadece düþmanlarý seçmek için
+    [SerializeField] private LayerMask enemyLayer; // "Enemy" layer'ý
     [SerializeField] private float maxRayDistance = 100f;
+
+    [Header("Görsel Ayarlar")]
+    [SerializeField] private Color xrayColor = Color.red;
+
+    // Burayý Inspector'dan 0.5 yapabilirsin. Ýnce çizgiler için hassas aralýk verdik.
+    [SerializeField, Range(0f, 10f)] private float xrayWidth = 0.5f;
 
     private Outline currentOutline;
     private Camera mainCamera;
@@ -18,44 +22,43 @@ public class OutlineSelectionController : MonoBehaviour
 
     void Update()
     {
-        HandleOutlineSelection();
+        HandleOutlineAndXraySelection();
     }
 
-    private void HandleOutlineSelection()
+    private void HandleOutlineAndXraySelection()
     {
-        // Mouse pozisyonundan ekrana doðru bir ýþýn gönderiyoruz
         Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
 
         if (Physics.Raycast(ray, out hit, maxRayDistance, enemyLayer))
         {
-            // Iþýnýn çarptýðý objedeki veya üst/alt objelerindeki Outline bileþenini alýyoruz
             Outline newOutline = hit.collider.GetComponentInParent<Outline>();
 
             if (newOutline != null)
             {
-                // Eðer imleç hala ayný düþmanýn üzerindeyse hiçbir þey yapma
                 if (newOutline == currentOutline) return;
 
-                // Eski düþmanýn outline efektini kapat
                 if (currentOutline != null)
                 {
                     currentOutline.enabled = false;
                 }
 
-                // Yeni düþmanýn outline efektini aç
                 currentOutline = newOutline;
+
+                // Mod ayarlarý ve senin belirlediðin ince geniþlik (0.5f) uygulanýyor
+                currentOutline.OutlineMode = Outline.Mode.OutlineAndSilhouette;
+                currentOutline.OutlineColor = xrayColor;
+                currentOutline.OutlineWidth = xrayWidth;
+
                 currentOutline.enabled = true;
             }
             else
             {
-                // Çarptýðý þey bir düþman ama üzerinde Outline componenti yoksa eskisini kapat
                 ClearCurrentOutline();
             }
         }
         else
         {
-            // Ýmleç boþluða veya baþka bir nesneye bakýyorsa efekti tamamen kapat
             ClearCurrentOutline();
         }
     }
