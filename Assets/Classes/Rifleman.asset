@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Rifleman
   m_EditorClassIdentifier: 
   className: Rifleman
+  classIcon: {fileID: 21300000, guid: 0fbc882737dcf65439e6e2d8b201d38e, type: 3}
   maxHP: 10
   maxAP: 2
   moveRange: 3

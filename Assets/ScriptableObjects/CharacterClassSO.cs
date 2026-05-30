@@ -6,6 +6,9 @@ public class CharacterClassSO : ScriptableObject
     [Header("Identity")]
     public string className = "Rifle";
 
+    // --- YENÝ EKLENEN SATIR: Arayüz simgesi için deðiþken ---
+    public Sprite classIcon; // Bu sýnýfa ait ikonu buraya sürükleyin
+
     [Header("Stats")]
     public int maxHP = 10;
     public int maxAP = 2;

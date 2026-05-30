@@ -157,6 +157,9 @@ public class TurnManager : MonoBehaviour
         {
             waitingForEnemyAction = false;
         }
+        // --- YENİ EKLENEN KISIM: Turn Bar UI Güncellemesi ---
+        FindFirstObjectByType<TurnOrderUI>()?.UpdateTimeline(turnOrder, turnIndex);
+
     }
 
     IEnumerator EnemyActAfterDelay(EnemyMover enemyMover, Unit enemy)

@@ -84,10 +84,7 @@ public class IsoTacticalCamera : MonoBehaviour
         if (Input.GetKeyDown(prevUnitKey)) { isPanningFree = false; FocusPrevUnit(); }
         if (Input.GetKeyDown(nextUnitKey)) { isPanningFree = false; FocusNextUnit(); }
 
-        // DÜZELTME: WASD tuþ girdilerini burada dinlemeye baþladýk
         HandlePanInput();
-
-        // Dönüþ girdilerini yönet ve yaw açýsýný güncelle
         HandleRotate();
 
         Vector3 targetPivot;
@@ -136,7 +133,6 @@ public class IsoTacticalCamera : MonoBehaviour
             Vector3 movement = (camForward * v + camRight * h).normalized * panSpeed * Time.deltaTime;
             customPivotPosition += movement;
 
-            // Oyuncu WASD ile gezerken o anki açýsýný korumasý için targetYaw'ý güncel tutuyoruz
             targetYaw = yaw;
         }
     }
@@ -175,6 +171,27 @@ public class IsoTacticalCamera : MonoBehaviour
 
         SyncManualIndexToCurrent();
     }
+
+    // --- YENÝ EKLENEN FONKSÝYON: UI'DAN ÇAÐRILAN ODAKLAMA MANTIÐI ---
+    /// <summary>
+    /// TurnOrderUI çizelgesinden bir ikona týklandýðýnda kamerayý o üniteye pürüzsüzce odaklar.
+    /// </summary>
+    public void FocusOnUnitFromUI(Unit targetUnit)
+    {
+        if (targetUnit == null) return;
+
+        focusTarget = targetUnit.transform;
+        isPanningFree = false; // WASD serbest gezinmesini iptal et ve üniteye kilitle
+        manualOverride = true;
+
+        // Manuel Shift geçiþ indeksini de bu üniteyle senkronize et ki sistem þaþýrmasýn
+        List<Unit> all = GetAllUnits();
+        int idx = all.IndexOf(targetUnit);
+        if (idx >= 0) manualIndex = idx;
+
+        Debug.Log($"Kamera Odaklandý (UI): {targetUnit.gameObject.name}");
+    }
+    // ---------------------------------------------------------------
 
     void SyncManualIndexToCurrent()
     {
