@@ -64,6 +64,9 @@ public class ShootingController : MonoBehaviour
                 if (targetUnit == attacker) return;
                 if (targetUnit.IsDead) return;
 
+                // DOST ATEŞİ ENGELİ: Saldıran ve hedef aynı takımdaysa (İkisi de oyuncu veya ikisi de düşmansa) atışı iptal et
+                if (attacker.isPlayerUnit == targetUnit.isPlayerUnit) return;
+
                 StartCoroutine(RotateAndFireRoutine(attacker, targetUnit, fireAPCost, maxRange));
             }
         }
@@ -79,6 +82,9 @@ public class ShootingController : MonoBehaviour
         if (attacker == null || target == null) return false;
         if (attacker.IsDead || target.IsDead) return false;
 
+        // DOST ATEŞİ ENGELİ
+        if (attacker.isPlayerUnit == target.isPlayerUnit) return false;
+
         StartCoroutine(RotateAndFireRoutine(attacker, target, fireAPCost, maxRange));
         return true;
     }
@@ -88,6 +94,9 @@ public class ShootingController : MonoBehaviour
         if (attacker == null || target == null) return false;
         if (attacker.IsDead || target.IsDead) return false;
         if (attacker.ammo <= 0) return false;
+
+        // DOST ATEŞİ ENGELİ: Pusuya yatan asker kendi arkadaşı önünden geçerken tetiklenmez
+        if (attacker.isPlayerUnit == target.isPlayerUnit) return false;
 
         StartCoroutine(RotateAndOverwatchFireRoutine(attacker, target, maxRange));
         return true;

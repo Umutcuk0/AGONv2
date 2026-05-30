@@ -3,6 +3,10 @@ using UnityEngine;
 
 public class Unit : MonoBehaviour
 {
+    [Header("Team Settings")]
+    [Tooltip("Oyuncunun kendi askerlerinde bunu TİKLEYİN, düşmanlarda boş bırakın.")]
+    public bool isPlayerUnit;
+
     [Header("Audio")]
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip damageSound;
@@ -217,11 +221,7 @@ public class Unit : MonoBehaviour
 
     IEnumerator DeathRoutine()
     {
-        // Karmaşık animasyon süresi alma kodunu sildik. 
-        // destroyDelayAfterDeath değerini Inspector'dan (Örn: 2f veya 2.5f) yaparak 
-        // karakterin yere düşme süresini tam olarak bekletebilirsin.
         yield return new WaitForSeconds(destroyDelayAfterDeath);
-
         Destroy(gameObject);
     }
 

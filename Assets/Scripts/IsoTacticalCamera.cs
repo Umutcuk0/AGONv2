@@ -7,6 +7,12 @@ public class IsoTacticalCamera : MonoBehaviour
     [SerializeField] private Vector3 pivotOffset = Vector3.zero;
     [SerializeField] private float followSmoothTime = 0.18f;
 
+    [Header("WASD Pan Settings")]
+    [SerializeField] private bool enablePan = true;
+    [SerializeField] private float panSpeed = 20f;
+    [SerializeField] private float panSmoothTime = 0.1f;
+    [SerializeField] private KeyCode returnToActiveUnitKey = KeyCode.Q;
+
     [Header("Iso Orbit Settings")]
     [SerializeField] private float distance = 14f;
     [SerializeField] private float pitch = 45f;
@@ -23,28 +29,41 @@ public class IsoTacticalCamera : MonoBehaviour
     [SerializeField] private bool smoothYaw = true;
     [SerializeField] private float yawSmoothTime = 0.12f;
 
+    // Q tuþuna basýnca yönün ne kadar sürede (gecikmeyle) sýfýrlanacaðýný belirler. 
+    [SerializeField] private float qResetSmoothTime = 0.3f;
+
     [Header("Cycle Focus (All Units)")]
-    [SerializeField] private KeyCode prevUnitKey = KeyCode.Q;
-    [SerializeField] private KeyCode nextUnitKey = KeyCode.E;
+    [SerializeField] private KeyCode prevUnitKey = KeyCode.LeftShift;
+    [SerializeField] private KeyCode nextUnitKey = KeyCode.RightShift;
 
     [Header("Refs (optional)")]
     [SerializeField] private TurnManager turnManager;
 
     private Transform focusTarget;
     private Vector3 followVel;
-
     private float yawVel;
 
     private int manualIndex = -1;
     private bool manualOverride;
-
     private Unit lastTurnUnit;
+
+    private Vector3 customPivotPosition;
+    private bool isPanningFree;
+
+    private float defaultYaw;
+    private float targetYaw;
 
     void Start()
     {
         if (turnManager == null) turnManager = TurnManager.Instance;
 
+        defaultYaw = yaw;
+        targetYaw = yaw;
+
         FocusTurnUnit(force: true);
+
+        if (focusTarget != null)
+            customPivotPosition = focusTarget.position + pivotOffset;
     }
 
     void LateUpdate()
@@ -55,20 +74,70 @@ public class IsoTacticalCamera : MonoBehaviour
         if (turnManager.currentUnit != lastTurnUnit)
             FocusTurnUnit(force: true);
 
-        if (Input.GetKeyDown(prevUnitKey)) FocusPrevUnit();
-        if (Input.GetKeyDown(nextUnitKey)) FocusNextUnit();
+        // Q Tuþuna basýldýðýnda
+        if (Input.GetKeyDown(returnToActiveUnitKey))
+        {
+            FocusTurnUnit(force: true);
+            targetYaw = defaultYaw;
+        }
 
+        if (Input.GetKeyDown(prevUnitKey)) { isPanningFree = false; FocusPrevUnit(); }
+        if (Input.GetKeyDown(nextUnitKey)) { isPanningFree = false; FocusNextUnit(); }
+
+        // DÜZELTME: WASD tuþ girdilerini burada dinlemeye baþladýk
+        HandlePanInput();
+
+        // Dönüþ girdilerini yönet ve yaw açýsýný güncelle
         HandleRotate();
 
-        if (focusTarget != null)
+        Vector3 targetPivot;
+        if (isPanningFree)
         {
-            Vector3 pivot = focusTarget.position + pivotOffset;
+            targetPivot = customPivotPosition;
+        }
+        else if (focusTarget != null)
+        {
+            targetPivot = focusTarget.position + pivotOffset;
+            customPivotPosition = targetPivot;
+        }
+        else
+        {
+            return;
+        }
 
-            Quaternion rot = Quaternion.Euler(pitch, yaw, 0f);
-            Vector3 desiredPos = pivot + rot * new Vector3(0f, 0f, -distance);
+        Quaternion rot = Quaternion.Euler(pitch, yaw, 0f);
+        Vector3 desiredPos = targetPivot + rot * new Vector3(0f, 0f, -distance);
 
-            transform.position = Vector3.SmoothDamp(transform.position, desiredPos, ref followVel, followSmoothTime);
-            transform.rotation = rot;
+        transform.position = Vector3.SmoothDamp(transform.position, desiredPos, ref followVel,
+            isPanningFree ? panSmoothTime : followSmoothTime);
+
+        transform.rotation = rot;
+    }
+
+    void HandlePanInput()
+    {
+        if (!enablePan) return;
+
+        float h = Input.GetAxisRaw("Horizontal");
+        float v = Input.GetAxisRaw("Vertical");
+
+        if (Mathf.Abs(h) > 0.05f || Mathf.Abs(v) > 0.05f)
+        {
+            isPanningFree = true;
+
+            Vector3 camForward = Quaternion.Euler(0f, yaw, 0f) * Vector3.forward;
+            Vector3 camRight = Quaternion.Euler(0f, yaw, 0f) * Vector3.right;
+
+            camForward.y = 0f;
+            camRight.y = 0f;
+            camForward.Normalize();
+            camRight.Normalize();
+
+            Vector3 movement = (camForward * v + camRight * h).normalized * panSpeed * Time.deltaTime;
+            customPivotPosition += movement;
+
+            // Oyuncu WASD ile gezerken o anki açýsýný korumasý için targetYaw'ý güncel tutuyoruz
+            targetYaw = yaw;
         }
     }
 
@@ -79,9 +148,11 @@ public class IsoTacticalCamera : MonoBehaviour
         float input = 0f;
         if (Input.GetKey(rotateLeftKey)) input -= 1f;
         if (Input.GetKey(rotateRightKey)) input += 1f;
-        if (Mathf.Approximately(input, 0f)) return;
 
-        float targetYaw = yaw + input * yawRotateSpeed * Time.deltaTime;
+        if (!Mathf.Approximately(input, 0f))
+        {
+            targetYaw += input * yawRotateSpeed * Time.deltaTime;
+        }
 
         if (!smoothYaw)
         {
@@ -89,7 +160,8 @@ public class IsoTacticalCamera : MonoBehaviour
             return;
         }
 
-        yaw = Mathf.SmoothDampAngle(yaw, targetYaw, ref yawVel, yawSmoothTime);
+        float currentSmoothTime = Mathf.Approximately(targetYaw, defaultYaw) ? qResetSmoothTime : yawSmoothTime;
+        yaw = Mathf.SmoothDampAngle(yaw, targetYaw, ref yawVel, currentSmoothTime);
     }
 
     void FocusTurnUnit(bool force)
@@ -98,8 +170,8 @@ public class IsoTacticalCamera : MonoBehaviour
         if (turnManager.currentUnit == null) return;
 
         focusTarget = turnManager.currentUnit.transform;
-
         manualOverride = false;
+        isPanningFree = false;
 
         SyncManualIndexToCurrent();
     }
@@ -129,6 +201,7 @@ public class IsoTacticalCamera : MonoBehaviour
 
         focusTarget = u.transform;
         manualOverride = true;
+        targetYaw = yaw;
     }
 
     void FocusNextUnit()
@@ -144,6 +217,7 @@ public class IsoTacticalCamera : MonoBehaviour
 
         focusTarget = u.transform;
         manualOverride = true;
+        targetYaw = yaw;
     }
 
     List<Unit> GetAllUnits()

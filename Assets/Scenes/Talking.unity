@@ -257,6 +257,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 289495356696388388, guid: 43b1fd0b2196798409de3789b80d61ab,
         type: 3}
+      propertyPath: skipDialoguesKey
+      value: 323
+      objectReference: {fileID: 0}
+    - target: {fileID: 289495356696388388, guid: 43b1fd0b2196798409de3789b80d61ab,
+        type: 3}
       propertyPath: allDialogues.Array.data[0].sprite
       value: 
       objectReference: {fileID: 21300000, guid: 06b186d0131abd24f9744862dbe63548,
