@@ -368,7 +368,7 @@ MonoBehaviour:
   roundNumber: 1
   currentUnit: {fileID: 0}
   enemyActionDelay: 1
-  sniperAimButton: {fileID: 0}
+  sniperAimButton: {fileID: 621937905}
 --- !u!4 &33464612
 Transform:
   m_ObjectHideFlags: 0
@@ -6581,7 +6581,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 1992512215}
         m_TargetAssemblyTypeName: SniperMechanic, Assembly-CSharp
         m_MethodName: EnterScopeView
         m_Mode: 1
@@ -22289,9 +22289,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88b2bc89fa344d94cb1de230de3b4e52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mainIsoCamera: {fileID: 0}
+  mainIsoCamera: {fileID: 1608556408}
   scopeCamera: {fileID: 1248843540}
-  bulletCamera: {fileID: 0}
+  bulletCamera: {fileID: 361065001}
   bulletPrefab: {fileID: 1926998824041564895, guid: 971a10488340be642a55cf46a4806c5c,
     type: 3}
   firePoint: {fileID: 1780609634}
