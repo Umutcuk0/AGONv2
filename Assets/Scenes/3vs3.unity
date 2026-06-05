@@ -30606,8 +30606,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   iconPrefab: {fileID: 1244603591}
   iconContainer: {fileID: 1749053525}
-  playerColor: {r: 0, g: 0.9, b: 0.9, a: 1}
-  enemyColor: {r: 0.9, g: 0.1, b: 0.1, a: 1}
+  playerColor: {r: 0.08235294, g: 0.6156863, b: 0.10588236, a: 1}
+  enemyColor: {r: 0.62352943, g: 0.4156863, b: 0.10588236, a: 1}
   maxVisibleIcons: 7
 --- !u!114 &1749053530
 MonoBehaviour:

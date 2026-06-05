@@ -451,7 +451,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   outlineMode: 1
   outlineColor: {r: 1, g: 0, b: 0, a: 1}
-  outlineWidth: 0.1
+  outlineWidth: 0.5
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
@@ -2473,7 +2473,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 250, y: -320}
+  m_AnchoredPosition: {x: 97, y: -320}
   m_SizeDelta: {x: 1941, y: 1080}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &403403830
@@ -2490,8 +2490,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   iconPrefab: {fileID: 743341643}
   iconContainer: {fileID: 403403829}
-  playerColor: {r: 0, g: 0.9, b: 0.9, a: 1}
-  enemyColor: {r: 0.9, g: 0.1, b: 0.1, a: 1}
+  playerColor: {r: 0.1137255, g: 0.48627454, b: 0.098039225, a: 1}
+  enemyColor: {r: 0.35686275, g: 0.49803925, b: 0.5686275, a: 1}
   maxVisibleIcons: 4
 --- !u!114 &403403831
 MonoBehaviour:

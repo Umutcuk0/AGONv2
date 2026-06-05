@@ -3,14 +3,14 @@ using UnityEngine;
 public class OutlineSelectionController : MonoBehaviour
 {
     [Header("Raycast Ayarlarý")]
-    [SerializeField] private LayerMask enemyLayer; // "Enemy" layer'ý
+    [SerializeField] private LayerMask enemyLayer;
     [SerializeField] private float maxRayDistance = 100f;
 
     [Header("Görsel Ayarlar")]
     [SerializeField] private Color xrayColor = Color.red;
 
-    // Burayý Inspector'dan 0.5 yapabilirsin. Ýnce çizgiler için hassas aralýk verdik.
-    [SerializeField, Range(0f, 10f)] private float xrayWidth = 0.5f;
+    // Dýþ çizginin görünür olmasý için 3.0f - 5.0f idealdir
+    [SerializeField, Range(0f, 10f)] private float xrayWidth = 3.0f;
 
     private Outline currentOutline;
     private Camera mainCamera;
@@ -45,8 +45,9 @@ public class OutlineSelectionController : MonoBehaviour
 
                 currentOutline = newOutline;
 
-                // Mod ayarlarý ve senin belirlediðin ince geniþlik (0.5f) uygulanýyor
-                currentOutline.OutlineMode = Outline.Mode.OutlineAndSilhouette;
+                // --- HATALI SÝLÜET MODU ÝPTAL EDÝLDÝ ---
+                // Sadece dýþ hattý çizen en kararlý mod olan OutlineAll'a geçildi
+                currentOutline.OutlineMode = Outline.Mode.OutlineAll;
                 currentOutline.OutlineColor = xrayColor;
                 currentOutline.OutlineWidth = xrayWidth;
 
