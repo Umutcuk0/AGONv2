@@ -63,18 +63,16 @@ public class TurnOrderUI : MonoBehaviour
             GameObject newIcon = Instantiate(iconPrefab, iconContainer);
             spawnedIcons.Add(newIcon);
 
-            // --- YENÝ EKLENEN KISIM: TIKLAMA VE KAMERA ODAKLAMA ÖZELLÝÐÝ ---
+            // --- TIKLAMA VE KAMERA ODAKLAMA ÖZELLÝÐÝ ---
             Button iconButton = newIcon.GetComponent<Button>();
             if (iconButton == null) iconButton = newIcon.AddComponent<Button>();
 
-            // Döngü içi closure hatasýný engellemek için yerel referans oluþturuyoruz
             Unit targetUnit = unit;
             iconButton.onClick.RemoveAllListeners();
             iconButton.onClick.AddListener(() =>
             {
                 if (targetUnit != null)
                 {
-                    // Sahnedeki taktiksel kamerayý bul ve bu üniteye odaklanmasýný söyle
                     IsoTacticalCamera tacticalCam = FindFirstObjectByType<IsoTacticalCamera>();
                     if (tacticalCam != null)
                     {
@@ -82,10 +80,9 @@ public class TurnOrderUI : MonoBehaviour
                     }
                 }
             });
-            // -------------------------------------------------------------
 
             // Bileþenleri hiyerarþiden çek
-            Image borderImage = newIcon.GetComponent<Image>(); // Parent (Dýþ çerçeve)
+            Image borderImage = newIcon.GetComponent<Image>();
             Image classImage = null;
 
             Transform childIconTransform = newIcon.transform.Find("ClassIcon");
@@ -101,12 +98,10 @@ public class TurnOrderUI : MonoBehaviour
             {
                 if (i == 0)
                 {
-                    // Sýrasý olan karakterin dýþýndaki outline kutusunu kapatýyoruz
                     borderImage.enabled = false;
                 }
                 else
                 {
-                    // Sýradaki diðer karakterlerin çerçeve kutularý görünmeye devam eder
                     borderImage.enabled = true;
                     borderImage.color = teamColor;
                 }
@@ -133,13 +128,13 @@ public class TurnOrderUI : MonoBehaviour
                     glowEffect.enabled = (i == 0);
                     if (i == 0)
                     {
-                        glowEffect.effectColor = new Color(teamColor.r, teamColor.g, teamColor.b, 0.5f); // %50 þeffaf takým rengi gölgesi
+                        glowEffect.effectColor = new Color(teamColor.r, teamColor.g, teamColor.b, 0.5f);
                         glowEffect.effectDistance = new Vector2(3f, -3f);
                     }
                 }
             }
 
-            // D) Ölçeklendirme (Aktif olan kutusuz logo %30 daha büyük durur)
+            // D) Ölçeklendirme
             if (i == 0)
             {
                 newIcon.transform.localScale = Vector3.one * 1.3f;
@@ -149,5 +144,35 @@ public class TurnOrderUI : MonoBehaviour
                 newIcon.transform.localScale = Vector3.one * 0.9f;
             }
         }
+    }
+
+    // =================================================================
+    // YENÝ EKLENEN SAVAÞ SONU TEMÝZLÝK FONKSÝYONLARI
+    // =================================================================
+
+    /// <summary>
+    /// Savaþ bittiðinde (Win/Lose) dýþarýdan çaðrýlarak tüm arayüzü kapatýr ve ikonlarý siler.
+    /// </summary>
+    public void HideTimeline()
+    {
+        // Önce ekrandaki klon ikonlarý yok et ki arkada boþuna RAM yemesin
+        foreach (var icon in spawnedIcons)
+        {
+            if (icon != null) Destroy(icon);
+        }
+        spawnedIcons.Clear();
+
+        // Sonra UI Canvas'ýn veya panelin kendisini tamamen görünmez yap
+        gameObject.SetActive(false);
+        Debug.LogWarning("[TURN UI] Savaþ bitti, Timeline ekraný kapatýldý.");
+    }
+
+    /// <summary>
+    /// Yeni bir savaþa baþlandýðýnda arayüzü tekrar görünür yapar.
+    /// </summary>
+    public void ShowTimeline()
+    {
+        gameObject.SetActive(true);
+        Debug.LogWarning("[TURN UI] Timeline ekraný tekrar aktif edildi.");
     }
 }

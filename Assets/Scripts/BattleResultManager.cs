@@ -58,13 +58,30 @@ public class BattleResultManager : MonoBehaviour
         if (TurnManager.Instance.enemyUnits.Count == 0 && TurnManager.Instance.playerUnits.Count > 0)
         {
             isGameOver = true;
+            HideTimelineUI(); // <-- Savaþ bitti, timeline'ý hemen temizle ve gizle
             StartCoroutine(TriggerAutomaticVictory());
         }
         // DEFEAT KONTROLÜ
         else if (TurnManager.Instance.playerUnits.Count == 0)
         {
             isGameOver = true;
+            HideTimelineUI(); // <-- Savaþ bitti, timeline'ý hemen temizle ve gizle
             StartCoroutine(TriggerAutomaticDefeat());
+        }
+    }
+
+    // =================================================================
+    // =================================================================
+    private void HideTimelineUI()
+    {
+        TurnOrderUI turnUI = FindFirstObjectByType<TurnOrderUI>();
+        if (turnUI != null)
+        {
+            turnUI.HideTimeline();
+        }
+        else
+        {
+            Debug.LogWarning("[BATTLE RESULT] Sahnede TurnOrderUI bulunamadýðý için Timeline gizlenemedi.");
         }
     }
 

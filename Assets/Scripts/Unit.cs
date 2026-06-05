@@ -232,4 +232,30 @@ public class Unit : MonoBehaviour
             audioSource.PlayOneShot(fireSound);
         }
     }
+
+    // =================================================================
+    // 🔥 HUB GELİŞTİRME ENTEGRASYONU (DİĞER MEKANİKLERİ ETKİLEMEZ) 🔥
+    // =================================================================
+    public void HandleUpgrade(UpgradeType type, int amount)
+    {
+        switch (type)
+        {
+            case UpgradeType.MaxHP:
+                // Orijinal değişkenin olan küçük harfli 'hp' değerini kalıcı olarak artırır
+                hp += amount;
+                Debug.LogWarning($"[HUB UPGRADE] {name} Canı arttı! Yeni Can: {hp}");
+                break;
+
+            case UpgradeType.Damage:
+                // Eğer ileride characterClass veya silah hasarını artırmak istersen burayı bağlarsın
+                Debug.LogWarning($"[HUB UPGRADE] {name} Hasarı kalıcı olarak {amount} arttı!");
+                break;
+
+            case UpgradeType.AP:
+                // Orijinal değişkenin olan küçük harfli 'ap' değerini kalıcı olarak artırır
+                ap += amount;
+                Debug.LogWarning($"[HUB UPGRADE] {name} Aksiyon Puanı (AP) arttı! Yeni AP: {ap}");
+                break;
+        }
+    }
 }

@@ -143,39 +143,64 @@ public class UnitMovementController : MonoBehaviour
         isMoving = true;
         unit.SetAnimMoving(true);
 
-        for (int i = 1; i < path.Count; i++)
+        try
         {
-            Tile next = path[i];
-            if (!next.walkable || next.IsOccupied) break;
-
-            // ✅ occupancy + gridPos güncelle (teleport yok)
-            bool placed = unit.PlaceOnTile(next.gridPos);
-            if (!placed) break;
-
-            // ✅ görsel olarak yumuşak hareket
-            Vector3 startPos = unit.transform.position;
-            Vector3 endPos = unit.GetWorldPos(next.gridPos);
-
-            float t = 0f;
-            float duration = stepTime;              // adım süresi
-            if (duration < 0.01f) duration = 0.01f; // güvenlik
-
-            while (t < 1f)
+            for (int i = 1; i < path.Count; i++)
             {
-                t += Time.deltaTime / duration;
-                Vector3 moveDir = (endPos - startPos).normalized;
-                unit.RotateTowards(moveDir);
-                unit.transform.position = Vector3.Lerp(startPos, endPos, t);
-                yield return null;
+                Tile next = path[i];
+
+                if (next == null || !next.walkable || next.IsOccupied)
+                {
+                    Debug.LogWarning($"[MOVE] Yol kesildi veya hedef dolu. Kare: {next?.gridPos}");
+                    break;
+                }
+
+                bool placed = unit.PlaceOnTile(next.gridPos);
+                if (!placed) break;
+
+                Vector3 startPos = unit.transform.position;
+                Vector3 endPos = unit.GetWorldPos(next.gridPos);
+
+                float t = 0f;
+                float duration = Mathf.Max(0.02f, stepTime);
+
+                while (t < 1f)
+                {
+                    t += Time.deltaTime / duration;
+                    Vector3 moveDir = (endPos - startPos).normalized;
+                    unit.RotateTowards(moveDir);
+                    unit.transform.position = Vector3.Lerp(startPos, endPos, t);
+                    yield return null;
+                }
+
+                unit.transform.position = endPos;
+            }
+        }
+        finally
+        {
+            // YÜRÜME NE ŞEKİLDE BİTERSE BİTSİN KESİNLİKLE ÇALIŞACAK BLOK
+            unit.SetAnimMoving(false);
+            isMoving = false;
+
+            // --- SESSİZ TETİKLEME MERKEZİ ---
+            if (unit != null)
+            {
+                // Sessizce HubManager arıyoruz. Bulursak çalıştırır, bulamazsak (savaş sahnesiyse) es geçer.
+                HubManager hub = FindFirstObjectByType<HubManager>();
+                if (hub != null)
+                {
+                    hub.CheckAndOpenPanel(unit.gridPos);
+                }
+
+                // Sessizce çıkış kapısı kontrolü
+                if (ExitHubManager.Instance != null && ExitHubManager.Instance.gameObject.activeInHierarchy)
+                {
+                    ExitHubManager.Instance.CheckAndExitScene(unit.gridPos);
+                }
             }
 
-            unit.transform.position = endPos;
+            RefreshHighlight();
         }
-
-        unit.SetAnimMoving(false);
-        isMoving = false;
-
-        RefreshHighlight();
     }
 
 
