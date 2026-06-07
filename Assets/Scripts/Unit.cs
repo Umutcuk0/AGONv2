@@ -236,26 +236,35 @@ public class Unit : MonoBehaviour
     // =================================================================
     // 🔥 HUB GELİŞTİRME ENTEGRASYONU (DİĞER MEKANİKLERİ ETKİLEMEZ) 🔥
     // =================================================================
-    public void HandleUpgrade(UpgradeType type, int amount)
+    public void HandleUpgrade(UpgradeType upgradeType, int amount)
     {
-        switch (type)
+        // Karakterin bağlı olduğu bir sınıf (ScriptableObject) yoksa işlem yapma
+        if (characterClass == null) return;
+
+        switch (upgradeType)
         {
             case UpgradeType.MaxHP:
-                // Orijinal değişkenin olan küçük harfli 'hp' değerini kalıcı olarak artırır
-                hp += amount;
-                Debug.LogWarning($"[HUB UPGRADE] {name} Canı arttı! Yeni Can: {hp}");
+                characterClass.maxHP += amount; // Kalıcı Max HP'yi artır
+                ap = characterClass.maxAP;      // (Opsiyonel) Canı fullemek istersen: hp = characterClass.maxHP;
+
+                Debug.LogWarning($"[UPGRADE] {gameObject.name} Max HP kazandı! Yeni Max HP: {characterClass.maxHP}");
+
+                // EĞER KARAKTERİN ÜSTÜNDE CAN BARI VARSA ONU DA YENİLE
+                // HealthBar healthBar = GetComponentInChildren<HealthBar>();
+                // if (healthBar != null) healthBar.UpdateHealth(hp, characterClass.maxHP);
                 break;
 
             case UpgradeType.Damage:
-                // Eğer ileride characterClass veya silah hasarını artırmak istersen burayı bağlarsın
-                Debug.LogWarning($"[HUB UPGRADE] {name} Hasarı kalıcı olarak {amount} arttı!");
+                characterClass.damage += amount; // Karakterin hasarını kalıcı artır
+                Debug.LogWarning($"[UPGRADE] {gameObject.name} Hasar kazandı! Yeni Hasar: {characterClass.damage}");
                 break;
 
             case UpgradeType.AP:
-                // Orijinal değişkenin olan küçük harfli 'ap' değerini kalıcı olarak artırır
-                ap += amount;
-                Debug.LogWarning($"[HUB UPGRADE] {name} Aksiyon Puanı (AP) arttı! Yeni AP: {ap}");
+                characterClass.maxAP += amount; // Karakterin hareket/aksiyon puanını kalıcı artır
+                ap += amount; // O anki turda kullanabilsin diye anlık AP'sini de artır
+                Debug.LogWarning($"[UPGRADE] {gameObject.name} Max AP kazandı! Yeni Max AP: {characterClass.maxAP}");
                 break;
         }
     }
-}
+
+    }

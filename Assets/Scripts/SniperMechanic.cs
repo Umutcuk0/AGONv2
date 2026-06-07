@@ -13,9 +13,23 @@ public class SniperMechanic : MonoBehaviour
     public Transform firePoint;
     public float mouseSensitivity = 2f;
 
+    [Header("Yetenek Bekleme Süresi (Cooldown)")]
+    public int requiredTurns = 3; // Kaç turda dolacaðý
+    [HideInInspector] public int currentTurns = 0; // Þu anki dolum seviyesi
+
     private bool isAiming = false;
     private float pitch = 0f;
     private float yaw = 0f;
+
+    // Tur baþladýðýnda dolumu 1 artýracak fonksiyon
+    public void IncreaseTurnCharge()
+    {
+        if (currentTurns < requiredTurns)
+        {
+            currentTurns++;
+            Debug.Log($"[SNIPER] Yetenek Doluyor: {currentTurns}/{requiredTurns}");
+        }
+    }
 
     public void EnterScopeView()
     {
@@ -57,6 +71,9 @@ public class SniperMechanic : MonoBehaviour
     {
         isAiming = false;
 
+        // Ateþ edildiðinde yetenek sayacýný sýfýrla!
+        currentTurns = 0;
+
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
@@ -65,18 +82,13 @@ public class SniperMechanic : MonoBehaviour
 
     private IEnumerator BulletCamRoutine()
     {
-        // Mermiyi sadece scope kameranýn baktýðý yöne göre oluþtur
         GameObject bullet = Instantiate(bulletPrefab, firePoint.position, scopeCamera.transform.rotation);
-
         SniperBullet bulletScript = bullet.GetComponent<SniperBullet>();
 
         scopeCamera.gameObject.SetActive(false);
         bulletCamera.gameObject.SetActive(true);
 
-        // Kamerayý merminin child'ý yap
         bulletCamera.transform.SetParent(bullet.transform);
-
-        // Kamera konumu
         bulletCamera.transform.localPosition = new Vector3(0f, 1.5f, -2f);
         bulletCamera.transform.localRotation = Quaternion.Euler(30f, 0f, 0f);
 
@@ -95,4 +107,3 @@ public class SniperMechanic : MonoBehaviour
         Destroy(bullet);
     }
 }
-

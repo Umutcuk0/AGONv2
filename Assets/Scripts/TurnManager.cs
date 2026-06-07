@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI; // UI işlemleri (Fill ve Buton) için ŞART
 
 public class TurnManager : MonoBehaviour
 {
@@ -19,13 +20,12 @@ public class TurnManager : MonoBehaviour
     public float enemyActionDelay = 1.0f;
 
     [Header("UI Elements")]
-    public GameObject sniperAimButton; // Inspector'dan Sniper nişan alma butonunu buraya sürükle
+    public GameObject sniperAimButton;
 
     private List<Unit> turnOrder = new();
     private int turnIndex = -1;
 
     private bool waitingForEnemyAction = false;
-
     private Coroutine enemyDelayRoutine;
 
     private void Awake()
@@ -47,7 +47,6 @@ public class TurnManager : MonoBehaviour
     {
         if (waitingForEnemyAction) return;
 
-        // Sıra bittiğinde butonu ekrandan kaldır
         if (sniperAimButton != null) sniperAimButton.SetActive(false);
 
         NextUnitTurn();
@@ -115,23 +114,49 @@ public class TurnManager : MonoBehaviour
     {
         if (u == null) return;
 
-        // AP reset
         u.BeginTurn();
 
         string side = IsPlayerTurn ? "PLAYER" : "ENEMY";
         Debug.Log($"-- {side} TURN: {u.name} | AP={u.ap}/{u.characterClass.maxAP}");
 
-        // Highlight refresh
         FindFirstObjectByType<UnitMovementController>()?.RefreshHighlight();
 
-        // --- YENİ EKLENEN KISIM: Sniper Butonu Kontrolü ---
+        // =================================================================
+        // 🔥 SNIPER COOLDOWN VE UI DOLUM MANTIĞI 🔥
+        // =================================================================
         if (sniperAimButton != null)
         {
-            // Eğer sıra oyuncudaysa ve aktif karakterin sınıfı "Sniper" ise butonu aktif et
             bool isSniper = (u.characterClass != null && u.characterClass.name == "Sniper");
             sniperAimButton.SetActive(IsPlayerTurn && isSniper);
+
+            if (IsPlayerTurn && isSniper)
+            {
+                // Sahnede SniperMechanic kodunu bul
+                SniperMechanic sniperMech = FindFirstObjectByType<SniperMechanic>();
+
+                if (sniperMech != null)
+                {
+                    // Turu 1 artır
+                    sniperMech.IncreaseTurnCharge();
+
+                    Button btn = sniperAimButton.GetComponent<Button>();
+                    Image img = sniperAimButton.GetComponent<Image>();
+
+                    if (btn != null)
+                    {
+                        // Sadece currentTurns 3'e ulaştığında buton tıklanabilir olur
+                        btn.interactable = (sniperMech.currentTurns >= sniperMech.requiredTurns);
+                    }
+
+                    if (img != null)
+                    {
+                        // Butonun doluluk oranını hesapla (Örn: 1. tur = 0.33, 2. tur = 0.66, 3. tur = 1.0)
+                        img.fillAmount = (float)sniperMech.currentTurns / sniperMech.requiredTurns;
+                    }
+                }
+            }
         }
-        // --------------------------------------------------
+        // =================================================================
 
         if (IsEnemyTurn)
         {
@@ -157,9 +182,8 @@ public class TurnManager : MonoBehaviour
         {
             waitingForEnemyAction = false;
         }
-        // --- YENİ EKLENEN KISIM: Turn Bar UI Güncellemesi ---
-        FindFirstObjectByType<TurnOrderUI>()?.UpdateTimeline(turnOrder, turnIndex);
 
+        FindFirstObjectByType<TurnOrderUI>()?.UpdateTimeline(turnOrder, turnIndex);
     }
 
     IEnumerator EnemyActAfterDelay(EnemyMover enemyMover, Unit enemy)
@@ -167,7 +191,6 @@ public class TurnManager : MonoBehaviour
         if (enemyActionDelay > 0f)
             yield return new WaitForSeconds(enemyActionDelay);
 
-        // Enemy ölmediyse oynat
         if (enemy != null && !enemy.IsDead)
         {
             enemyMover.DoEnemyTurn(enemy);

@@ -628,7 +628,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   videoPlayer: {fileID: 1152394251}
   nextSceneName: Talking
-  delayAfterVideo: 0.7
+  delayAfterVideo: 0
 --- !u!4 &1705454704
 Transform:
   m_ObjectHideFlags: 0
