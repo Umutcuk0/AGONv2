@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee135458160d73a46a65cc56f4c9f24f, type: 3}
+  m_Name: Sniper Enemy
+  m_EditorClassIdentifier: 
+  className: Sniper
+  classIcon: {fileID: 21300000, guid: 471cb34fe4ae91941be5a10bc7e48e34, type: 3}
+  maxHP: 7
+  maxAP: 1
+  moveRange: 3
+  aim: 100
+  maxAmmo: 2
+  damage: 8
+  canOverwatch: 1
+  canTakeCover: 1
+  moveAPCost: 1

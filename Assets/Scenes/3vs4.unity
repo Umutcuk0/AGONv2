@@ -5040,7 +5040,7 @@ MonoBehaviour:
   footstepSound: {fileID: 8300000, guid: 4247388d57a4ce84096a96838717c4c8, type: 3}
   fireSound: {fileID: 8300000, guid: 87a5162c5fcaca2488c9cc5e29a404db, type: 3}
   reloadSound: {fileID: 8300000, guid: fa7bf5be723bf7c4ab44a4e24f79a33e, type: 3}
-  characterClass: {fileID: 11400000, guid: 6e97d4924de1a104b9b77194e506eb72, type: 2}
+  characterClass: {fileID: 11400000, guid: 51cfb4e8409ef1f488d57eb32276e9b0, type: 2}
   isOverwatch: 0
   overwatchUsedThisRound: 0
   hp: 0
@@ -8415,7 +8415,7 @@ MonoBehaviour:
   footstepSound: {fileID: 8300000, guid: 4247388d57a4ce84096a96838717c4c8, type: 3}
   fireSound: {fileID: 8300000, guid: 87a5162c5fcaca2488c9cc5e29a404db, type: 3}
   reloadSound: {fileID: 8300000, guid: fa7bf5be723bf7c4ab44a4e24f79a33e, type: 3}
-  characterClass: {fileID: 11400000, guid: 6e97d4924de1a104b9b77194e506eb72, type: 2}
+  characterClass: {fileID: 11400000, guid: 51cfb4e8409ef1f488d57eb32276e9b0, type: 2}
   isOverwatch: 0
   overwatchUsedThisRound: 0
   hp: 0
@@ -10014,7 +10014,7 @@ MonoBehaviour:
   footstepSound: {fileID: 8300000, guid: 4247388d57a4ce84096a96838717c4c8, type: 3}
   fireSound: {fileID: 8300000, guid: 9e5f0b5b1d2f35541b247692d2a210b5, type: 3}
   reloadSound: {fileID: 8300000, guid: fa7bf5be723bf7c4ab44a4e24f79a33e, type: 3}
-  characterClass: {fileID: 11400000, guid: d9d4d49084113194eb52d1e7f6cb31ef, type: 2}
+  characterClass: {fileID: 11400000, guid: a8ffb6535d7ff8741b1dd3840277b273, type: 2}
   isOverwatch: 0
   overwatchUsedThisRound: 0
   hp: 0
@@ -11489,7 +11489,7 @@ MonoBehaviour:
   footstepSound: {fileID: 8300000, guid: 4247388d57a4ce84096a96838717c4c8, type: 3}
   fireSound: {fileID: 8300000, guid: 4461938811508c840a97d84870296254, type: 3}
   reloadSound: {fileID: 8300000, guid: fa7bf5be723bf7c4ab44a4e24f79a33e, type: 3}
-  characterClass: {fileID: 11400000, guid: 09a2e5053133f2340892ab758ebc6e45, type: 2}
+  characterClass: {fileID: 11400000, guid: 7a7b1c65c6da28143adcdf585b41dc25, type: 2}
   isOverwatch: 0
   overwatchUsedThisRound: 0
   hp: 0

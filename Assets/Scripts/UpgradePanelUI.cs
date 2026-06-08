@@ -86,31 +86,41 @@ public class UpgradePanelUI : MonoBehaviour
     {
         if (upgrade == null) return;
 
-        Debug.LogWarning($"[HUB] Geliþtirme kalýcý olarak uygulanýyor: {upgrade.name} (+{upgrade.valueModifier})");
+        Debug.LogWarning($"[HUB] Geliþtirme uygulanýyor: {upgrade.name} (+{upgrade.valueModifier})");
 
-        // --- KESÝN ETKÝ NOKTASI ---
-        // TurnManager üzerinden o an yeþil kübe gitmiþ olan aktif oyuncuyu çekiyoruz
-        if (TurnManager.Instance != null && TurnManager.Instance.currentUnit != null)
+        // 1. KONTROL: Kartýn üzerinde doðrudan bir hedef sýnýf dosyasý var mý?
+        if (upgrade.targetClass != null)
+        {
+            // Sahnede OLSUN VEYA OLMASIN, veriyi doðrudan sýnýf dosyasýna yazýyoruz!
+            switch (upgrade.type)
+            {
+                case UpgradeType.MaxHP:
+                    upgrade.targetClass.maxHP += upgrade.valueModifier;
+                    break;
+                case UpgradeType.Damage:
+                    upgrade.targetClass.damage += upgrade.valueModifier;
+                    break;
+                case UpgradeType.AP:
+                    upgrade.targetClass.maxAP += upgrade.valueModifier;
+                    break;
+            }
+            Debug.LogWarning($"[HUB BAÞARILI] Geliþtirme uzaktan telsizle doðrudan {upgrade.targetClass.name} sýnýfýna iþlendi!");
+        }
+        // 2. KONTROL: Hedef sýnýf yoksa (boþ býrakýldýysa), kübe basan karaktere ver
+        else if (TurnManager.Instance != null && TurnManager.Instance.currentUnit != null)
         {
             Unit activeUnit = TurnManager.Instance.currentUnit;
-
-            // Unit.cs içindeki yeni eklediðimiz HandleUpgrade fonksiyonuna yönlendirerek CS1061 hatalarýný çözüyoruz
             activeUnit.HandleUpgrade(upgrade.type, upgrade.valueModifier);
+            Debug.LogWarning($"[HUB BAÞARILI] Geliþtirme küpteki karaktere uygulandý: {activeUnit.name}");
+        }
+        else
+        {
+            Debug.LogError("[HUB HATA] Geliþtirme uygulanacak hedef bulunamadý!");
         }
 
-        // 1. Geliþtirme arayüz panelini kapatýyoruz
+        // --- Kapanýþ ve Temizlik ---
         if (mainPanel != null) mainPanel.SetActive(false);
-
-        // 2. Oyuncu seçimini yaptýðý an yeþil kübü (UIHitbox) dünyadan ve grid sisteminden siliyoruz
-        if (HubManager.Instance != null)
-        {
-            HubManager.Instance.SelfDestroyAndClearGrid();
-        }
-
-        // 3. Karakterin hub etkileþim turunu bitirip sýrayý sonraki üniteye devrediyoruz
-        if (TurnManager.Instance != null)
-        {
-            TurnManager.Instance.EndCurrentUnitTurn();
-        }
+        if (HubManager.Instance != null) HubManager.Instance.SelfDestroyAndClearGrid();
+        if (TurnManager.Instance != null) TurnManager.Instance.EndCurrentUnitTurn();
     }
 }

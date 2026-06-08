@@ -246,9 +246,9 @@ public class Unit : MonoBehaviour
             case UpgradeType.MaxHP:
                 characterClass.maxHP += amount; // Kalıcı Max HP'yi artır
                 ap = characterClass.maxAP;      // (Opsiyonel) Canı fullemek istersen: hp = characterClass.maxHP;
-
+                
                 Debug.LogWarning($"[UPGRADE] {gameObject.name} Max HP kazandı! Yeni Max HP: {characterClass.maxHP}");
-
+                
                 // EĞER KARAKTERİN ÜSTÜNDE CAN BARI VARSA ONU DA YENİLE
                 // HealthBar healthBar = GetComponentInChildren<HealthBar>();
                 // if (healthBar != null) healthBar.UpdateHealth(hp, characterClass.maxHP);
