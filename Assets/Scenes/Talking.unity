@@ -507,6 +507,31 @@ PrefabInstance:
       propertyPath: allDialogues.Array.data[7].isRight
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 289495356696388388, guid: 43b1fd0b2196798409de3789b80d61ab,
+        type: 3}
+      propertyPath: allDialogues.Array.data[0].reactionSFX
+      value: 
+      objectReference: {fileID: 8300000, guid: 850d286e8ebe9974b9f5f0e11520b334, type: 3}
+    - target: {fileID: 289495356696388388, guid: 43b1fd0b2196798409de3789b80d61ab,
+        type: 3}
+      propertyPath: allDialogues.Array.data[1].reactionSFX
+      value: 
+      objectReference: {fileID: 8300000, guid: dfd7957ef2c84b64e903d279446cc4bc, type: 3}
+    - target: {fileID: 289495356696388388, guid: 43b1fd0b2196798409de3789b80d61ab,
+        type: 3}
+      propertyPath: allDialogues.Array.data[2].reactionSFX
+      value: 
+      objectReference: {fileID: 8300000, guid: 850d286e8ebe9974b9f5f0e11520b334, type: 3}
+    - target: {fileID: 289495356696388388, guid: 43b1fd0b2196798409de3789b80d61ab,
+        type: 3}
+      propertyPath: allDialogues.Array.data[3].reactionSFX
+      value: 
+      objectReference: {fileID: 8300000, guid: 5c8f391c070457749a84baf05234ff82, type: 3}
+    - target: {fileID: 289495356696388388, guid: 43b1fd0b2196798409de3789b80d61ab,
+        type: 3}
+      propertyPath: allDialogues.Array.data[4].reactionSFX
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 1491021545530739816, guid: 43b1fd0b2196798409de3789b80d61ab,
         type: 3}
       propertyPath: m_SizeDelta.y
