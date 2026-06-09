@@ -80,6 +80,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 20
   hasHit: 0
+  damage: 50
 --- !u!1 &2953686458819200081
 GameObject:
   m_ObjectHideFlags: 0
@@ -141,7 +142,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -1096695356526587070, guid: 0df6a94bd0789f747b96adac2e93aeec, type: 3}
+  - {fileID: 2100000, guid: d782601fef3f38648b63f14f84a94caf, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -224,7 +225,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 4146349118605481459, guid: 0df6a94bd0789f747b96adac2e93aeec, type: 3}
+  - {fileID: 2100000, guid: d782601fef3f38648b63f14f84a94caf, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
