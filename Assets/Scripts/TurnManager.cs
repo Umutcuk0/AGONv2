@@ -45,6 +45,13 @@ public class TurnManager : MonoBehaviour
 
     public void EndCurrentUnitTurn()
     {
+
+        // Sıra bittiği an ekrandaki halkayı gizliyoruz
+        if (currentUnit != null)
+        {
+            RangeIndicator rangeIndicator = currentUnit.GetComponent<RangeIndicator>();
+            if (rangeIndicator != null) rangeIndicator.HideRange();
+        }
         if (waitingForEnemyAction) return;
 
         if (sniperAimButton != null) sniperAimButton.SetActive(false);
@@ -122,7 +129,7 @@ public class TurnManager : MonoBehaviour
         FindFirstObjectByType<UnitMovementController>()?.RefreshHighlight();
 
         // =================================================================
-        // 🔥 SNIPER COOLDOWN VE UI DOLUM MANTIĞI 🔥
+        //  SNIPER COOLDOWN VE UI DOLUM MANTIĞI 
         // =================================================================
         if (sniperAimButton != null)
         {
@@ -184,6 +191,12 @@ public class TurnManager : MonoBehaviour
         }
 
         FindFirstObjectByType<TurnOrderUI>()?.UpdateTimeline(turnOrder, turnIndex);
+        // Karakterin turun başında menzil halkasını gösteriyoruz
+        RangeIndicator rangeIndicator = u.GetComponent<RangeIndicator>();
+        if (rangeIndicator != null && IsPlayerTurn)
+        {
+            rangeIndicator.ShowRange();
+        }
     }
 
     IEnumerator EnemyActAfterDelay(EnemyMover enemyMover, Unit enemy)

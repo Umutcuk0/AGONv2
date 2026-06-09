@@ -13,21 +13,22 @@ public class SniperMechanic : MonoBehaviour
     public Transform firePoint;
     public float mouseSensitivity = 2f;
 
+    [Tooltip("Ateþ edildiðinde harcanacak AP miktarý")]
+    public int apCost = 1;
+
     [Header("Yetenek Bekleme Süresi (Cooldown)")]
-    public int requiredTurns = 3; // Kaç turda dolacaðý
-    [HideInInspector] public int currentTurns = 0; // Þu anki dolum seviyesi
+    public int requiredTurns = 3;
+    [HideInInspector] public int currentTurns = 0;
 
     private bool isAiming = false;
     private float pitch = 0f;
     private float yaw = 0f;
 
-    // Tur baþladýðýnda dolumu 1 artýracak fonksiyon
     public void IncreaseTurnCharge()
     {
         if (currentTurns < requiredTurns)
         {
             currentTurns++;
-            Debug.Log($"[SNIPER] Yetenek Doluyor: {currentTurns}/{requiredTurns}");
         }
     }
 
@@ -70,17 +71,27 @@ public class SniperMechanic : MonoBehaviour
     private void Shoot()
     {
         isAiming = false;
+        currentTurns = 0; // Cooldown sýfýrla
 
-        // Ateþ edildiðinde yetenek sayacýný sýfýrla!
-        currentTurns = 0;
+        // --- AP HARCAMA MANTIÐI ---
+        // Karakterin anlýk Unit scriptini bulup içindeki "ap" (anlýk aksiyon puaný) deðerini düþürüyoruz.
+        Unit myUnit = GetComponentInParent<Unit>();
+        if (myUnit != null)
+        {
+            myUnit.ap -= apCost;
+            if (myUnit.ap < 0) myUnit.ap = 0; // Eksiye düþmesini engelle
+
+            Debug.LogWarning($"[SNIPER] Ateþ edildi! {apCost} AP harcandý. Kalan AP: {myUnit.ap}");
+        }
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
-        StartCoroutine(BulletCamRoutine());
+        // Kamerayý ve tur sýrasýný yönetmesi için karakterin verisini Coroutine'e yolluyoruz
+        StartCoroutine(BulletCamRoutine(myUnit));
     }
 
-    private IEnumerator BulletCamRoutine()
+    private IEnumerator BulletCamRoutine(Unit shooterUnit)
     {
         GameObject bullet = Instantiate(bulletPrefab, firePoint.position, scopeCamera.transform.rotation);
         SniperBullet bulletScript = bullet.GetComponent<SniperBullet>();
@@ -94,16 +105,30 @@ public class SniperMechanic : MonoBehaviour
 
         Time.timeScale = 0.2f;
 
-        yield return new WaitUntil(() => bulletScript.hasHit);
+        // Mermi hedefe çarpana veya zaman aþýmýna (Timeout) uðrayana kadar bekle
+        yield return new WaitUntil(() => bulletScript == null || bulletScript.hasHit || bulletScript.isTimeout);
 
         yield return new WaitForSecondsRealtime(1f);
 
         Time.timeScale = 1f;
 
+        // Kamerayý kurtar ve eski haline dön
         bulletCamera.transform.SetParent(null);
         bulletCamera.gameObject.SetActive(false);
         mainIsoCamera.gameObject.SetActive(true);
 
-        Destroy(bullet);
+        if (bullet != null) Destroy(bullet);
+
+        // --- SÝNEMATÝK BÝTTÝ, ÞÝMDÝ TURU KONTROL ET ---
+        // Eðer karakterin AP'si sýfýrlandýysa sýrayý burada düþmana devrediyoruz.
+        // Bu sayede kamera aksiyonu izlerken arkada baþka karakterler hareket etmez.
+        if (shooterUnit != null && shooterUnit.ap <= 0)
+        {
+            if (TurnManager.Instance != null && TurnManager.Instance.currentUnit == shooterUnit)
+            {
+                Debug.LogWarning("[SNIPER] AP sýfýrlandý, sinematik bitti. Tur devrediliyor...");
+                TurnManager.Instance.EndCurrentUnitTurn();
+            }
+        }
     }
 }
