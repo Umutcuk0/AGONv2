@@ -10,9 +10,10 @@ public class RangeIndicator : MonoBehaviour
     [Tooltip("Bu karakterin vurabileceði kare/birim menzili.")]
     public float attackRange = 5f;
 
-    private void Start()
+    private void Awake()
     {
         // Oyun baþýnda menzil halkasý kapalý baþlasýn
+        // Awake içinde olduðu için TurnManager sýrayý kime verirse versin burasý hep daha önce çalýþýr!
         HideRange();
 
         // Silindirin boyutunu menzile göre ayarla

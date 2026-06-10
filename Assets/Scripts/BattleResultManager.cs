@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections;
-using UnityEngine.SceneManagement; // Sahneleri yönetmek için bu kütüphane ÞART!
+using UnityEngine.SceneManagement;
 
 public class BattleResultManager : MonoBehaviour
 {
@@ -36,19 +36,16 @@ public class BattleResultManager : MonoBehaviour
         if (fadeTransitionPanel != null) fadeTransitionPanel.SetActive(false);
     }
 
-    // Üniteler öldüðü an bu fonksiyonu çaðýracaðýz
     public void OnUnitDied(Unit deadUnit)
     {
         if (isGameOver || TurnManager.Instance == null) return;
 
-        // TurnManager'ýn listelerinden anýnda temizliyoruz ki yok olmasýný (Destroy) beklemeyelim
         if (TurnManager.Instance.playerUnits.Contains(deadUnit))
             TurnManager.Instance.playerUnits.Remove(deadUnit);
 
         if (TurnManager.Instance.enemyUnits.Contains(deadUnit))
             TurnManager.Instance.enemyUnits.Remove(deadUnit);
 
-        // Kalan canlý sayýlarýna göre durumu kontrol et
         CheckGameCondition();
     }
 
@@ -58,20 +55,18 @@ public class BattleResultManager : MonoBehaviour
         if (TurnManager.Instance.enemyUnits.Count == 0 && TurnManager.Instance.playerUnits.Count > 0)
         {
             isGameOver = true;
-            HideTimelineUI(); // <-- Savaþ bitti, timeline'ý hemen temizle ve gizle
+            HideTimelineUI();
             StartCoroutine(TriggerAutomaticVictory());
         }
         // DEFEAT KONTROLÜ
         else if (TurnManager.Instance.playerUnits.Count == 0)
         {
             isGameOver = true;
-            HideTimelineUI(); // <-- Savaþ bitti, timeline'ý hemen temizle ve gizle
+            HideTimelineUI();
             StartCoroutine(TriggerAutomaticDefeat());
         }
     }
 
-    // =================================================================
-    // =================================================================
     private void HideTimelineUI()
     {
         TurnOrderUI turnUI = FindFirstObjectByType<TurnOrderUI>();
@@ -106,12 +101,9 @@ public class BattleResultManager : MonoBehaviour
     }
 
     // =================================================================
-    // --- BUTONLAR TARAFINDAN ÇAÐRILACAK YENÝ EKLENEN FONKSÝYONLAR ---
+    // --- BUTONLAR TARAFINDAN ÇAÐRILACAK FONKSÝYONLAR ---
     // =================================================================
 
-    /// <summary>
-    /// Yenilgi ekranýndaki "Tekrar Dene / Restart" butonu için geçerli sahneyi yeniden yükler.
-    /// </summary>
     public void RestartLevel()
     {
         Debug.Log("Level yeniden baþlatýlýyor...");
@@ -119,12 +111,19 @@ public class BattleResultManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Zafer ekranýndaki "Sonraki Bölüm" butonu için belirtilen sahne indexini yükler.
+    /// --- DÜZELTÝLDÝ: Artýk elle sayý girilmesine gerek yok! ---
+    /// Zafer ekranýndaki butona basýldýðýnda otomatik olarak sýradaki sahneyi bulur ve yükler.
     /// </summary>
-    /// <param name="nextSceneIndex">Gidilmek istenen sahnenin Build Settings'teki numarasý.</param>
-    public void LoadNextScene(int nextSceneIndex)
+    public void LoadNextSceneAutomatically()
     {
-        Debug.Log("Sonraki sahne yükleniyor: " + nextSceneIndex);
+        // Mevcut sahnenin numarasýný al
+        int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
+        // Bir sonraki sahnenin numarasýný hesapla
+        int nextSceneIndex = currentSceneIndex + 1;
+
+        Debug.Log($"[SÝSTEM] Mevcut Sahne: {currentSceneIndex}. Otomatik olarak {nextSceneIndex}. sahneye geçiliyor!");
+
+        // Sýradaki sahneyi yükle
         SceneManager.LoadScene(nextSceneIndex);
     }
 }

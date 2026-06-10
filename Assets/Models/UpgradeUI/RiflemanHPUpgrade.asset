@@ -16,4 +16,4 @@ MonoBehaviour:
     type: 3}
   type: 0
   valueModifier: 1
-  targetClass: {fileID: 0}
+  targetClass: {fileID: 11400000, guid: 6e97d4924de1a104b9b77194e506eb72, type: 2}

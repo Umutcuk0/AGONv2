@@ -6642,11 +6642,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -4597033136916952208, guid: 803b3adb2ce131f4ebf6e97ec7705eef,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 1ca2f96d3e0d56840976c7dfe967f665, type: 2}
     - target: {fileID: 919132149155446097, guid: 803b3adb2ce131f4ebf6e97ec7705eef,
         type: 3}
       propertyPath: m_Name
       value: MaskedManwRig
       objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: 803b3adb2ce131f4ebf6e97ec7705eef,
+        type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 6e58d9ce61460894fabf61b32e85f7a0, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 803b3adb2ce131f4ebf6e97ec7705eef, type: 3}
 --- !u!1001 &971643410
@@ -8496,8 +8506,8 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1417876925}
         m_TargetAssemblyTypeName: BattleResultManager, Assembly-CSharp
-        m_MethodName: LoadNextScene
-        m_Mode: 3
+        m_MethodName: LoadNextSceneAutomatically
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -16835,6 +16845,7 @@ MonoBehaviour:
     type: 3}
   firePoint: {fileID: 1780609634}
   mouseSensitivity: 2
+  apCost: 1
   requiredTurns: 3
   currentTurns: 0
 --- !u!1001 &1999961340

@@ -2584,8 +2584,8 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 324160046}
         m_TargetAssemblyTypeName: BattleResultManager, Assembly-CSharp
-        m_MethodName: LoadNextScene
-        m_Mode: 3
+        m_MethodName: LoadNextSceneAutomatically
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
