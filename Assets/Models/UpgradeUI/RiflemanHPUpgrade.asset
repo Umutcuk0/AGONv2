@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07df6da191e77be45a7985c8d757529f, type: 3}
   m_Name: RiflemanHPUpgrade
   m_EditorClassIdentifier: 
-  cardPrefab: {fileID: 0}
+  cardPrefab: {fileID: 6773661596268633039, guid: 34a25ad471ddb624b9fb9607d44bc0dd,
+    type: 3}
   type: 0
-  valueModifier: 0
+  valueModifier: 1
+  targetClass: {fileID: 0}

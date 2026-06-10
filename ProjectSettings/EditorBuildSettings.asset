@@ -27,6 +27,12 @@ EditorBuildSettings:
     path: Assets/Scenes/Hub 1.unity
     guid: 9b686fec548b2d24eaecfbcf23d569dc
   - enabled: 1
+    path: Assets/Scenes/3vs4.unity
+    guid: ff414161283d12744896a12b2a13be5e
+  - enabled: 1
+    path: Assets/Scenes/Hub 2.unity
+    guid: 8fb50814f07ad5e46aee0cc417eab0f2
+  - enabled: 1
     path: Assets/Scenes/boss dialogue.unity
     guid: 9516c011c601c52449198fbb50b4f9cd
   m_configObjects: {}
