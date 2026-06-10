@@ -526,12 +526,12 @@ PrefabInstance:
         type: 3}
       propertyPath: allDialogues.Array.data[3].reactionSFX
       value: 
-      objectReference: {fileID: 8300000, guid: ffe7d64f72e50d04184fe465cabaa788, type: 3}
+      objectReference: {fileID: 8300000, guid: 34f97703196f70b449885c4e089cc225, type: 3}
     - target: {fileID: 289495356696388388, guid: 43b1fd0b2196798409de3789b80d61ab,
         type: 3}
       propertyPath: allDialogues.Array.data[4].reactionSFX
       value: 
-      objectReference: {fileID: 8300000, guid: 3049050ae5545f140abc61829151e643, type: 3}
+      objectReference: {fileID: 8300000, guid: 4a9862abd53b39947ad9a218e8ccd5e8, type: 3}
     - target: {fileID: 289495356696388388, guid: 43b1fd0b2196798409de3789b80d61ab,
         type: 3}
       propertyPath: allDialogues.Array.data[5].reactionSFX
