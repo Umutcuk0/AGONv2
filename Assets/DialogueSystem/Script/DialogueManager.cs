@@ -33,10 +33,9 @@ public class CharacterInformation
     [Tooltip("Optional reaction sound to play when this dialogue is active.")]
     public AudioClip reactionSFX;
 
-    [Tooltip("Event triggered when this dialogue finishes playing.")]
+    [Tooltip("Event triggered when THIS SPECIFIC LINE finishes playing.")]
     public UnityEvent finishEvent;
 }
-
 
 [System.Serializable]
 public class KeyDuration
@@ -61,7 +60,6 @@ public class DialogueManager : MonoBehaviour
     [Tooltip("If enabled, the dialogue system will start automatically on Awake.")]
     public bool playOnAwake;
 
-
     [Space(10)]
     [Header("Dialogue Settings")]
     [Tooltip("List of all characters and their dialogue lines.")]
@@ -77,18 +75,18 @@ public class DialogueManager : MonoBehaviour
     [Range(0.1f, 5f)]
     public float animationSpeed = 1f;
 
-
     [Space(10)]
     [Header("Input")]
     [Tooltip("Keyboard key used to skip or advance dialogue.")]
     public KeyCode skipDialoguesKey = KeyCode.Space;
-
 
     [Space(10)]
     [Header("Behavior")]
     [Tooltip("If the player presses skip before typing ends, complete the line instantly.")]
     public bool canSkipDialogue = true;
 
+    [Tooltip("YENİ: Diyalog oynarken oyundaki zamanı (TimeScale) tamamen durdurur.")]
+    public bool freezeTimeDuringDialogue = false;
 
     [Space(10)]
     [Header("Audio")]
@@ -116,6 +114,11 @@ public class DialogueManager : MonoBehaviour
     public TextMeshProUGUI characterNameText;
 
     [Space(10)]
+    [Header("Sequence Events")]
+    [Tooltip("YENİ: TÜM diyalog sekansı tamamen bittiğinde tetiklenecek ana olay (Sahne geçişi vb. için).")]
+    public UnityEvent onDialogueSequenceEnded;
+
+    [Space(10)]
     [Header("Runtime State")]
     [ReadOnly, Tooltip("[ReadOnly] Is the dialogue box currently open?")]
     public bool textBoxIsOpen = false;
@@ -129,7 +132,6 @@ public class DialogueManager : MonoBehaviour
     private bool pressSkipButton = false;
 
     #endregion
-
 
     #region Unity Lifecycle
     private void Awake()
@@ -152,7 +154,8 @@ public class DialogueManager : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(skipDialoguesKey))
+        // --- DÜZELTME: Hem belirlediğin tuşla (Space) hem de Sol Tık ile geçiş yapılabilir ---
+        if (Input.GetKeyDown(skipDialoguesKey) || Input.GetMouseButtonDown(0))
         {
             pressSkipButton = true;
         }
@@ -178,7 +181,6 @@ public class DialogueManager : MonoBehaviour
             allDialogues.AddRange(newDialogues);
             StartCoroutine(StartDialogueIE());
         }
-
     }
     #endregion
 
@@ -196,11 +198,11 @@ public class DialogueManager : MonoBehaviour
             rightImage.gameObject.SetActive(rightImage.sprite != null);
             leftImage.gameObject.SetActive(leftImage.sprite != null);
 
-            leftImage.DOFade(0.5f, tFade);
-            leftImage.transform.DOScale(0.97f, tScale);
+            leftImage.DOFade(0.5f, tFade).SetUpdate(true);
+            leftImage.transform.DOScale(0.97f, tScale).SetUpdate(true);
 
-            rightImage.DOFade(1f, tFade);
-            rightImage.transform.DOScale(1f, tScale);
+            rightImage.DOFade(1f, tFade).SetUpdate(true);
+            rightImage.transform.DOScale(1f, tScale).SetUpdate(true);
         }
         else
         {
@@ -210,11 +212,11 @@ public class DialogueManager : MonoBehaviour
             rightImage.gameObject.SetActive(rightImage.sprite != null);
             leftImage.gameObject.SetActive(leftImage.sprite != null);
 
-            leftImage.DOFade(1f, tFade);
-            leftImage.transform.DOScale(1f, tScale);
+            leftImage.DOFade(1f, tFade).SetUpdate(true);
+            leftImage.transform.DOScale(1f, tScale).SetUpdate(true);
 
-            rightImage.DOFade(0.5f, tFade);
-            rightImage.transform.DOScale(0.97f, tScale);
+            rightImage.DOFade(0.5f, tFade).SetUpdate(true);
+            rightImage.transform.DOScale(0.97f, tScale).SetUpdate(true);
         }
     }
     #endregion
@@ -230,26 +232,27 @@ public class DialogueManager : MonoBehaviour
         {
             textBox.SetActive(true);
 
-            characterNameText.DOFade(1f, 0f);
+            characterNameText.DOFade(1f, 0f).SetUpdate(true);
 
             leftImage.gameObject.SetActive(leftImage.sprite != null);
             rightImage.gameObject.SetActive(rightImage.sprite != null);
 
-            boxImg.DOFade(1f, 0.25f / animationSpeed).From(0.85f);
-            textBox.transform.DOScale(1f, 0.25f / animationSpeed).From(0.85f);
-            yield return new WaitForSeconds(0.25f / animationSpeed);
+            boxImg.DOFade(1f, 0.25f / animationSpeed).From(0.85f).SetUpdate(true);
+            textBox.transform.DOScale(1f, 0.25f / animationSpeed).From(0.85f).SetUpdate(true);
+
+            yield return new WaitForSecondsRealtime(0.25f / animationSpeed);
         }
         else
         {
             isPlayDialogue = false;
 
-            boxImg.DOFade(0f, 0.25f / animationSpeed);
-            textBox.transform.DOScale(0.85f, 0.25f / animationSpeed).From(1f);
+            boxImg.DOFade(0f, 0.25f / animationSpeed).SetUpdate(true);
+            textBox.transform.DOScale(0.85f, 0.25f / animationSpeed).From(1f).SetUpdate(true);
 
-            leftImage.DOFade(0f, 0.25f / animationSpeed);
-            rightImage.DOFade(0f, 0.25f / animationSpeed);
+            leftImage.DOFade(0f, 0.25f / animationSpeed).SetUpdate(true);
+            rightImage.DOFade(0f, 0.25f / animationSpeed).SetUpdate(true);
 
-            yield return new WaitForSeconds(0.25f / animationSpeed);
+            yield return new WaitForSecondsRealtime(0.25f / animationSpeed);
 
             textBox.SetActive(false);
             text.text = string.Empty;
@@ -267,6 +270,11 @@ public class DialogueManager : MonoBehaviour
     #region Dialogue Coroutine
     IEnumerator StartDialogueIE()
     {
+        if (freezeTimeDuringDialogue)
+        {
+            Time.timeScale = 0f;
+        }
+
         #region StartReset
         leftImage.DOKill(); rightImage.DOKill();
         leftImage.transform.DOKill(); rightImage.transform.DOKill();
@@ -300,19 +308,20 @@ public class DialogueManager : MonoBehaviour
             {
                 if (oldSpriteRight != allDialogues[i].sprite)
                 {
-                    rightImage.DOFade(0f, 0.25f);
-                    rightImage.transform.DOScale(0.95f, 0.25f);
+                    rightImage.DOFade(0f, 0.25f).SetUpdate(true);
+                    rightImage.transform.DOScale(0.95f, 0.25f).SetUpdate(true);
                 }
             }
             else
             {
                 if (oldSpriteLeft != allDialogues[i].sprite)
                 {
-                    leftImage.DOFade(0f, 0.25f);
-                    leftImage.transform.DOScale(0.95f, 0.25f);
+                    leftImage.DOFade(0f, 0.25f).SetUpdate(true);
+                    leftImage.transform.DOScale(0.95f, 0.25f).SetUpdate(true);
                 }
             }
-            yield return new WaitForSeconds(0.25f);
+
+            yield return new WaitForSecondsRealtime(0.25f);
 
             bool instant = true;
             ChangeImage(allDialogues[i].isRight, allDialogues[i].sprite, instant);
@@ -345,9 +354,12 @@ public class DialogueManager : MonoBehaviour
 
                 if (pressSkipButton)
                 {
-
                     text.text = allDialogues[i].text;
                     pressSkipButton = false;
+
+                    // --- DÜZELTME: Metin atlandığında sese ANINDA sus emri veriliyor ---
+                    if (typingSFX != null) typingSFX.Stop();
+
                     break;
                 }
 
@@ -356,23 +368,38 @@ public class DialogueManager : MonoBehaviour
                     typingSFX.Play();
                 }
 
-                yield return new WaitForSeconds(waitTime);
+                yield return new WaitForSecondsRealtime(waitTime);
             }
+
+            // --- DÜZELTME: Döngü normal yolla (atlamadan) bitse bile sesi durduruyoruz ---
+            if (typingSFX != null) typingSFX.Stop();
             #endregion
 
-            yield return new WaitUntil(() => Input.GetKeyDown(skipDialoguesKey));
+            // --- DÜZELTME: Sonraki satıra geçmek için hem Space hem de Sol Tık (Mouse 0) eklendi ---
+            yield return new WaitUntil(() => Input.GetKeyDown(skipDialoguesKey) || Input.GetMouseButtonDown(0));
+
+            // Metni geçtikten sonra bir sonraki cümleye başlarken yanlışlıkla basılmış sayılmasın diye temizlik
+            pressSkipButton = false;
 
             if (allDialogues[i].finishEvent != null) allDialogues[i].finishEvent.Invoke();
-
-
         }
 
         yield return OpenTextBox(false);
         isPlayDialogue = false;
+
+        if (freezeTimeDuringDialogue)
+        {
+            Time.timeScale = 1f;
+        }
+
+        if (onDialogueSequenceEnded != null)
+        {
+            onDialogueSequenceEnded.Invoke();
+        }
     }
     #endregion
-
 }
+
 #region Custom Inspector
 [CustomEditor(typeof(DialogueManager))]
 public class DialogueInspector : Editor
@@ -400,8 +427,6 @@ public class DialogueInspector : Editor
         signatureStyle.alignment = TextAnchor.MiddleRight;
         signatureStyle.fontStyle = FontStyle.Italic;
         EditorGUILayout.LabelField("www.batuozcamlik.com", signatureStyle);
-
-
     }
 }
 #endregion
