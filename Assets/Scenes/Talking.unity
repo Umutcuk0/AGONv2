@@ -410,9 +410,9 @@ PrefabInstance:
         type: 3}
       propertyPath: allDialogues.Array.data[5].text
       value: "Kayal\u0131k bir alanda iki ba\u015F\u0131bo\u015F uzayl\u0131 saptand\u0131.
-        Onlar\u0131 elemine etmenizi istiyoruz. \xD6d\xFCl\xFCn\xFCz her g\xF6rev
-        sonunda tesisimizde verilecek ve cephaneli\u011Finiz geli\u015Fecek. Tesiste
-        ben de size e\u015Flik edece\u011Fim ve g\xF6rev yerlerinizi size iletece\u011Fim."
+        Onlar\u0131 alt etmenizi istiyoruz. \xD6d\xFCl\xFCn\xFCz her g\xF6rev sonunda
+        tesisimizde verilecek ve cephaneli\u011Finiz geli\u015Fecek. Tesiste ben
+        de size e\u015Flik edece\u011Fim ve g\xF6rev yerlerinizi size iletece\u011Fim."
       objectReference: {fileID: 0}
     - target: {fileID: 289495356696388388, guid: 43b1fd0b2196798409de3789b80d61ab,
         type: 3}
