@@ -945,6 +945,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 289495356696388388, guid: 43b1fd0b2196798409de3789b80d61ab,
         type: 3}
+      propertyPath: freezeTimeDuringDialogue
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 289495356696388388, guid: 43b1fd0b2196798409de3789b80d61ab,
+        type: 3}
       propertyPath: allDialogues.Array.data[0].name
       value: "Direkt\xF6r"
       objectReference: {fileID: 0}
