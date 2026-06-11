@@ -36,6 +36,9 @@ EditorBuildSettings:
     path: Assets/Scenes/Hub 2.unity
     guid: 8fb50814f07ad5e46aee0cc417eab0f2
   - enabled: 1
+    path: Assets/Scenes/Cinematic 2.unity
+    guid: ed42fe3695257bd4baa7cc65290c1929
+  - enabled: 1
     path: Assets/Scenes/boss dialogue.unity
     guid: 9516c011c601c52449198fbb50b4f9cd
   - enabled: 1
