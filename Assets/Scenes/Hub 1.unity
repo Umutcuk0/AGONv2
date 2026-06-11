@@ -4272,8 +4272,8 @@ PrefabInstance:
     - target: {fileID: 289495356696388388, guid: 43b1fd0b2196798409de3789b80d61ab,
         type: 3}
       propertyPath: allDialogues.Array.data[0].text
-      value: "Tebrikler Ajanlar. \u0130lk g\xF6revinizi ba\u015Far\u0131yla tamamlad\u0131n\u0131z..\n\xD6d\xFCl\xFCn\xFCze
-        panelden ula\u015Fabilirsiniz."
+      value: "Tebrikler Ajanlar. Bir di\u011Fer g\xF6revinizi ba\u015Far\u0131yla
+        tamamlad\u0131n\u0131z..\n\xD6d\xFCl\xFCn\xFCze panelden ula\u015Fabilirsiniz."
       objectReference: {fileID: 0}
     - target: {fileID: 289495356696388388, guid: 43b1fd0b2196798409de3789b80d61ab,
         type: 3}
